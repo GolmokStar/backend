@@ -1,4 +1,4 @@
-package com.golmok.golmokstar.dto;
+package com.golmok.golmokstar.dto.response.trip;
 
 import lombok.Builder;
 import lombok.Getter;

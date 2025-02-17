@@ -1,10 +1,9 @@
-package com.golmok.golmokstar.dto;
+package com.golmok.golmokstar.dto.response.trip;
 
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder

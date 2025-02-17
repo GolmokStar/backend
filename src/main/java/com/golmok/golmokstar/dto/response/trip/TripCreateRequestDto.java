@@ -1,4 +1,4 @@
-package com.golmok.golmokstar.dto;
+package com.golmok.golmokstar.dto.response.trip;
 
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
-public class TripUpdateRequestDto {
+public class TripCreateRequestDto {
 
     @NotNull(message = "userId 입력은 필수입니다.")
     private Long userId;
@@ -30,4 +30,6 @@ public class TripUpdateRequestDto {
     public boolean isEndDateAfterStartDate() {
         return endDate != null && startDate != null && endDate.isAfter(startDate);
     }
+
+
 }

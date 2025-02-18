@@ -1,5 +1,10 @@
 server:
-  port: 8080
+  port: 8443  #https 실행
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: saegusa
+    key-store-type: PKCS12
 
 spring:
   datasource:
@@ -15,6 +20,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+google:
+  client-ids:
+    - "185396711523-pt6u14tmjk5fhs2a1kpa89g9c1ja092d.apps.googleusercontent.com"  #웹 애플리케이션용
+    - "407408718192.apps.googleusercontent.com"  #프론트엔드(Android)용
 
 management:
   endpoints:

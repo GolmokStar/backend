@@ -32,13 +32,13 @@ public class User {
     @Column(nullable = false, unique = true, length = 4) //친구 추가용 4자리 코드
     private String friendCode;
 
-    @Column(nullable = false) //프로필 사진
+    @Column(nullable = false) // 프로필 사진
     private String profilePhoto;
 
     @Column(nullable = false)
-    private Integer travelCount = 0; //기본값 0
+    private Integer recordCount = 0; //기본값 0 - sql 서버에서 travel카운트 삭제해야 함.
 
-    //관심 분야 테이블과 연결 (1:N 관계)
+    //관심 분야 테이블이랑 1:N 관계
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InterestArea> interestAreas;
 }

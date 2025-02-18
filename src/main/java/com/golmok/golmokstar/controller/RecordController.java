@@ -20,7 +20,7 @@ public class RecordController {
      */
     @PostMapping
     public ResponseEntity<?> createRecord(HttpServletRequest request, @RequestBody Map<String, Object> recordData) {
-        Long userId = (Long) request.getAttribute("userId"); // JWT로부터 사용자 ID 추출
+        Long userId = (Long) request.getAttribute("userId"); //JWT로부터 사용자 ID 추출
         if (userId == null) {
             return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
         }

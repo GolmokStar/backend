@@ -37,7 +37,7 @@ public class TripParticipantService {
                 .orElseThrow(()-> new CustomException(404, "해당 사용자를 찾을 수 없습니다."));
 
         // 중복 참가자 확인 로직
-        if ( tripParticipantRepository.findByTripIdAndUserId(trip.getId(), user.getUserId()).isPresent() ) {
+        if ( tripParticipantRepository.findByTrip_IdAndUser_UserId(trip.getId(), user.getUserId()).isPresent() ) {
             throw new CustomException(400, "이미 해당 여행에 참가하고 있는 사용자입니다.");
         }
 

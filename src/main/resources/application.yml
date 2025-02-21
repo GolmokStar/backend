@@ -1,0 +1,38 @@
+server:
+  port: 8443  #https 실행
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: saegusa
+    key-store-type: PKCS12
+
+spring:
+  datasource:
+    url: jdbc:mysql://34.64.119.157:3306/golmok?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: yeonju
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+google:
+  client-ids:
+    - "185396711523-pt6u14tmjk5fhs2a1kpa89g9c1ja092d.apps.googleusercontent.com"  #웹 애플리케이션용
+    - "407408718192.apps.googleusercontent.com"
+    - "668625350738-r6742iiotve7hl5qsus86jrqic1ulud2.apps.googleusercontent.com" #프론트엔드(Android)용 추가해야 함
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    org.springframework.security: DEBUG

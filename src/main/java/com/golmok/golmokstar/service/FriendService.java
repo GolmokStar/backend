@@ -11,21 +11,16 @@ import com.golmok.golmokstar.entity.User;
 import com.golmok.golmokstar.repository.FriendRepository;
 import com.golmok.golmokstar.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class FriendService {
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
-
-    public FriendService(FriendRepository friendRepository, UserRepository userRepository) {
-        this.friendRepository = friendRepository;
-        this.userRepository = userRepository;
-
-    }
 
     @Transactional
     public AddFriendResponseDto addFriend(AddFriendRequestDto dto) {
@@ -83,5 +78,4 @@ public class FriendService {
 
         return new DeleteFriendResponseDto(friendId);
     }
-
 }

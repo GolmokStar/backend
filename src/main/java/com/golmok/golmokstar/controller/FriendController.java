@@ -31,7 +31,6 @@ public class FriendController {
                 .body(friendService.getFriendDetail(friendId));
     }
 
-
     @PutMapping("/{friendId}")
     public ResponseEntity<UpdateFriendResponseDto> updateFriend(@PathVariable Long friendId, UpdateFriendRequestDto dto) {
         return ResponseEntity.status(HttpStatus.OK)

@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 // User 간의 친구 관계를 나타내는 Friend 테이블
 public class Friend {
     @Id

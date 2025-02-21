@@ -1,5 +1,6 @@
 package com.golmok.golmokstar.service;
 
+import com.golmok.golmokstar.dto.RecordResponseDTO;
 import com.golmok.golmokstar.entity.MapPin;
 import com.golmok.golmokstar.entity.Record;
 import com.golmok.golmokstar.repository.MapPinRepository;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,11 +25,11 @@ public class RecordService {
     public Map<String, Object> createRecord(Long userId, Long pinId, Integer rating, String content, String photo) {
         //방문 안 한 장소는 기록할 수 없음
         MapPin mapPin = mapPinRepository.findByPinIdAndPinType(pinId, MapPin.PinType.VISITED_PENDING)
-                .orElseThrow(() -> new IllegalArgumentException("기록할 수 없는 장소입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("방문을 안 해서 기록할 수 없습니다."));
 
         //별점 필수 입력 확인
         if (rating == null || rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("별점은 1~5점 필수입니다.");
+            throw new IllegalArgumentException("별점 1~5점 필수입니다.");
         }
 
         //댓글 200자 제한 검증
@@ -54,5 +57,32 @@ public class RecordService {
         mapPinRepository.save(mapPin);
 
         return Map.of("message", "기록이 저장되었습니다.", "recordId", record.getRecordId());
+    }
+
+    /**
+     *특정 방문 기록 조회
+     */
+    public RecordResponseDTO getRecordById(Long recordId) {
+        Record record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 기록을 찾을 수 없습니다."));
+        return new RecordResponseDTO(record);
+    }
+
+    /**
+     * 특정 여행의 방문한 장소 조회
+     */
+    public List<RecordResponseDTO> getTravelHistory(Long userId, Long travelId) {
+        List<MapPin> mapPins = mapPinRepository.findByTrip_TripIdAndUser_UserId(travelId, userId);
+
+        return mapPins.stream()
+                .map(pin -> recordRepository.findByMapPin(pin)
+                        .map(RecordResponseDTO::new)
+                        .orElseGet(() -> new RecordResponseDTO(pin)))
+                .sorted((r1, r2) -> {
+                    if (!r1.isRecorded() && r2.isRecorded()) return -1;
+                    if (r1.isRecorded() && !r2.isRecorded()) return 1;
+                    return r2.getVisitDate().compareTo(r1.getVisitDate());
+                })
+                .collect(Collectors.toList());
     }
 }

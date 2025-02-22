@@ -48,11 +48,11 @@ public class AuthController {
         if (existingUser.isPresent()) {
             User user = existingUser.get();
 
-
             String accessToken = jwtUtil.generateToken(user.getUserId(), user.getNickname());
             String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
 
             return ResponseEntity.ok(Map.of(
+                    "status", "login",
                     "userId", user.getUserId(),
                     "nickname", user.getNickname(),
                     "friendCode", user.getFriendCode(),
@@ -61,8 +61,15 @@ public class AuthController {
             ));
         }
 
-        return ResponseEntity.ok(Map.of("googleId", googleId));
+        //회원가입이 필요한 경우, 201 Created 반환
+        return ResponseEntity.status(201).body(Map.of(
+                "code", 201,
+                "status", "signup_required",
+                "googleId", googleId
+        ));
     }
+
+
 
 
     /**

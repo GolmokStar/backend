@@ -1,41 +1,39 @@
 package com.golmok.golmokstar.entity;
 
+import com.golmok.golmokstar.enums.PinType;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "MapPin")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class MapPin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pinId;
+    private Long pinId;  // ✅ Integer → Long으로 변경
 
     @ManyToOne
-    @JoinColumn(name = "tripId", nullable = false)
+    @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "placeId", nullable = false)
+    @JoinColumn(name = "place_id", nullable = false)
     private Place place;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PinType pinType; // FAVORED, VISITED_PENDING, RECORDED
+    private PinType pinType;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    public enum PinType {
-        FAVORED, VISITED_PENDING, RECORDED
-    }
 }

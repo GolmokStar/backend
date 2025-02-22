@@ -3,8 +3,11 @@ package com.golmok.golmokstar.service;
 import com.golmok.golmokstar.dto.RecordResponseDTO;
 import com.golmok.golmokstar.entity.MapPin;
 import com.golmok.golmokstar.entity.Record;
+import com.golmok.golmokstar.entity.User;
+import com.golmok.golmokstar.enums.PinType;
 import com.golmok.golmokstar.repository.MapPinRepository;
 import com.golmok.golmokstar.repository.RecordRepository;
+import com.golmok.golmokstar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +23,12 @@ public class RecordService {
 
     private final RecordRepository recordRepository;
     private final MapPinRepository mapPinRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public Map<String, Object> createRecord(Long userId, Long pinId, Integer rating, String content, String photo) {
         //방문 안 한 장소는 기록할 수 없음
-        MapPin mapPin = mapPinRepository.findByPinIdAndPinType(pinId, MapPin.PinType.VISITED_PENDING)
+        MapPin mapPin = mapPinRepository.findByPinIdAndPinType(pinId, PinType.VISITED_PENDING)
                 .orElseThrow(() -> new IllegalArgumentException("방문을 안 해서 기록할 수 없습니다."));
 
         //별점 필수 입력 확인
@@ -53,14 +57,21 @@ public class RecordService {
         record = recordRepository.save(record);
 
         //핀 타입 변경 (RECORDED)
-        mapPin.setPinType(MapPin.PinType.RECORDED);
+        mapPin.setPinType(PinType.RECORDED);
         mapPinRepository.save(mapPin);
+
+        //유저의 recordCount 증가
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        user.setRecordCount(user.getRecordCount() + 1);
+        userRepository.save(user);
 
         return Map.of("message", "기록이 저장되었습니다.", "recordId", record.getRecordId());
     }
 
+
     /**
-     *특정 방문 기록 조회
+     * 특정 방문 기록 조회
      */
     public RecordResponseDTO getRecordById(Long recordId) {
         Record record = recordRepository.findById(recordId)

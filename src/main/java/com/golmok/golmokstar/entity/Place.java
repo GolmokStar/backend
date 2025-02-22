@@ -4,26 +4,30 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "Place")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Table (name = "Place", uniqueConstraints = {
+        @UniqueConstraint( name = "Unique_Place" ,
+                columnNames = {"placeName", "latitude", "longitude"})
+})
 public class Place {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long placeId;
 
-    @Column(nullable = false)
-    private String placeName; // 장소명
+    @Column(nullable = false, unique = true)
+    private String placeName;
 
     @Column(nullable = false)
-    private Double latitude; // 위도
+    private double latitude;
 
     @Column(nullable = false)
-    private Double longitude; // 경도
+    private double longitude;
 
     @Column(nullable = false, length = 20)
-    private String type; // 구글맵 API types 값
+    private String type;
 }

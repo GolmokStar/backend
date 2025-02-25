@@ -23,9 +23,9 @@ public class TripService {
 
     // 여행 일정 등록
     @Transactional
-    public TripResponseDto createTrip(TripCreateRequestDto request) {
-        // UserId가 존재하는 지 확인
-        User user = userRepository.findById(request.getUserId())
+    public TripResponseDto createTrip(Long userId, TripCreateRequestDto request) {
+        // UserId가 존재하는 지 확인 ( 🔹 request.getUserId() → userId로 변경)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(404, "해당 userId를 찾을 수 없습니다."));
 
         Trip trip = Trip.builder()
@@ -39,7 +39,7 @@ public class TripService {
 
         return TripResponseDto.builder()
                 .success(true)
-                .tripId(trip.getId())
+                .tripId(trip.getTripId())
                 .message("여행 일정이 성공적으로 등록되었습니다.")
                 .build();
 
@@ -57,24 +57,27 @@ public class TripService {
 
         return TripResponseDto.builder()
                 .success(true)
-                .tripId(trip.getId())
+                .tripId(trip.getTripId())
                 .message("여행 일정이 성공적으로 수정되었습니다.")
                 .build();
     }
 
     // 특정 여행 일정 조회
     public TripDetailResponseDto getTrip(Long tripId) {
-        Trip trip = tripRepository.findById(tripId)
+        Trip trip = tripRepository.findByIdWithUser(tripId)
                 .orElseThrow(() -> new CustomException(404, "해당 tripId를 찾을 수 없습니다."));
 
         return TripDetailResponseDto.builder()
-                .tripId(trip.getId())
-                .userId(trip.getUser().getUserId())
+                .tripId(trip.getTripId())
+                .userId(trip.getUser().getUserId()) // ✅ NullPointerException 방지
                 .title(trip.getTitle())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
                 .build();
     }
+
+
+
 
     // 여행 일정 삭제
     @Transactional

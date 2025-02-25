@@ -1,5 +1,6 @@
 package com.golmok.golmokstar.controller;
 
+import com.golmok.golmokstar.config.JwtUtil;
 import com.golmok.golmokstar.dto.TripCreateRequestDto;
 import com.golmok.golmokstar.dto.TripDetailResponseDto;
 import com.golmok.golmokstar.dto.TripResponseDto;
@@ -17,10 +18,18 @@ import java.util.Map;
 public class TripController {
 
     private final TripService tripService;
+    private final JwtUtil jwtUtil; // ✅ JWT에서 userId를 추출하는 유틸리티 추가
 
-    // 여행 일정 등록 API
+    // 여행 일정 등록 API ( ✅userId → accessToken으로 대체)
     @PostMapping("/trips")
-    public ResponseEntity<?> createTrip(@RequestBody @Valid TripCreateRequestDto request) {
+    public ResponseEntity<?> createTrip(
+            @RequestHeader("Authorization") String token, // 🔹 클라이언트에서 accessToken을 헤더로 전달
+            @RequestBody @Valid TripCreateRequestDto request) {
+
+        // ✅ "Bearer " 접두사 제거 후 JWT에서 userId 추출
+        String accessToken = token.replace("Bearer ", "");
+        Long userId = jwtUtil.extractUserId(accessToken); // 🔹 JWT에서 userId 추출
+
         // EndDate가 StartDate 이후인지 검사
         if(!request.getEndDate().isAfter(request.getStartDate())) {
             return ResponseEntity.badRequest().body(
@@ -28,7 +37,8 @@ public class TripController {
             );
         }
 
-        TripResponseDto response = tripService.createTrip(request);
+        // ✅ userId를 포함하여 Trip 생성 요청
+        TripResponseDto response = tripService.createTrip(userId, request);
         return ResponseEntity.ok(response);
     }
 

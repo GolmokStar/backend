@@ -13,6 +13,7 @@ spring:
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,6 +21,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+jackson:
+  time-zone: Asia/Seoul
 
 google:
   client-ids:

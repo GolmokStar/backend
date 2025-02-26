@@ -9,6 +9,7 @@ import com.golmok.golmokstar.repository.MapPinRepository;
 import com.golmok.golmokstar.repository.RecordRepository;
 import com.golmok.golmokstar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,6 +95,56 @@ public class RecordService {
                     if (r1.isRecorded() && !r2.isRecorded()) return 1;
                     return r2.getVisitDate().compareTo(r1.getVisitDate());
                 })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 사용자의 최신 방문 기록 리스트 (최대 5개)
+     */
+    @Transactional
+    public List<RecordResponseDTO> getRecentRecords(Long userId) {
+        //방문 + 기록이 있는 것만 가져옴
+        return recordRepository.findByMapPin_User_UserIdOrderByVisitDateDesc(userId, PageRequest.of(0, 5))
+                .stream()
+                .map(RecordResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * 사용자의 전체 방문 기록을 최신순으로 정렬하여 반환 (기록 안 한 항목 상단 배치)
+     */
+    @Transactional
+    public List<RecordResponseDTO> getAllRecords(Long userId) {
+        //사용자를 조회해서 `findByUser(User user)`로 핀 리스트 가져오기
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        List<MapPin> mapPins = mapPinRepository.findByUser(user);
+
+        return mapPins.stream()
+                .map(pin -> recordRepository.findByMapPin(pin)
+                        .map(RecordResponseDTO::new)
+                        .orElseGet(() -> new RecordResponseDTO(pin)))
+                .sorted((r1, r2) -> {
+                    if (!r1.isRecorded() && r2.isRecorded()) return -1;
+                    if (r1.isRecorded() && !r2.isRecorded()) return 1;
+                    return r2.getVisitDate().compareTo(r1.getVisitDate());
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 전체 여행 기록 조회 (모든 여행의 기록 가져오기)
+     */
+    @Transactional
+    public List<RecordResponseDTO> getAllTravelHistory(Long userId) {
+        List<MapPin> mapPins = mapPinRepository.findByUser_UserId(userId); // 모든 여행의 핀 조회
+
+        return mapPins.stream()
+                .map(pin -> recordRepository.findByMapPin(pin)
+                        .map(RecordResponseDTO::new)
+                        .orElseGet(() -> new RecordResponseDTO(pin)))
                 .collect(Collectors.toList());
     }
 }

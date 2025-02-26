@@ -1,8 +1,9 @@
 package com.golmok.golmokstar.controller;
 
+import com.golmok.golmokstar.config.JwtUtil;
+import com.golmok.golmokstar.dto.CreateRecordRequestDTO;
 import com.golmok.golmokstar.dto.RecordResponseDTO;
 import com.golmok.golmokstar.service.RecordService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,24 +17,31 @@ import java.util.Map;
 public class RecordController {
 
     private final RecordService recordService;
+    private final JwtUtil jwtUtil;
+
+    private Long extractUserId(String token) {
+        String accessToken = token.replace("Bearer ", "");
+        return jwtUtil.extractUserId(accessToken);
+    }
 
     /**
-     *방문 기록 작성 (노란색 핀 → 파란색 핀)
+     * 방문 기록 작성 (노란색 핀 → 파란색 핀)
      */
     @PostMapping
-    public ResponseEntity<?> createRecord(HttpServletRequest request, @RequestBody Map<String, Object> recordData) {
-        Long userId = (Long) request.getAttribute("userId"); //JWT에서 사용자 ID 추출
-        if (userId == null) {
-            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
-        }
+    public ResponseEntity<?> createRecord(
+            @RequestHeader("Authorization") String token,
+            @RequestBody CreateRecordRequestDTO recordData) {
+
+        Long userId = extractUserId(token);
 
         try {
-            Long pinId = ((Number) recordData.get("pinId")).longValue();
-            Integer rating = (Integer) recordData.get("rating");
-            String content = (String) recordData.get("content");
-            String photo = (String) recordData.get("photo");
-
-            Map<String, Object> response = recordService.createRecord(userId, pinId, rating, content, photo);
+            Map<String, Object> response = recordService.createRecord(
+                    userId,
+                    recordData.getPinId(),
+                    recordData.getRating(),
+                    recordData.getContent(),
+                    recordData.getPhoto()
+            );
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
@@ -42,7 +50,7 @@ public class RecordController {
     }
 
     /**
-     *특정 방문 기록 조회
+     * 특정 방문 기록 조회
      */
     @GetMapping("/history/{recordId}")
     public ResponseEntity<?> getRecordById(@PathVariable Long recordId) {
@@ -55,16 +63,43 @@ public class RecordController {
     }
 
     /**
-     *특정 여행의 방문한 장소 조회 (기록한 장소, 방문했지만 기록하지 않은 장소)
+     * 특정 여행의 방문한 장소 조회
+     * tripId = 0이면 전체 여행 조회
      */
-    @GetMapping("/history/travel/{travelId}")
-    public ResponseEntity<List<RecordResponseDTO>> getTravelHistory(HttpServletRequest request, @PathVariable Long travelId) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).body(null);
+    @GetMapping("/history/travel/{tripId}")
+    public ResponseEntity<List<RecordResponseDTO>> getTravelHistory(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long tripId) {
+
+        Long userId = extractUserId(token);
+
+        List<RecordResponseDTO> history;
+        if (tripId == 0) {
+            // 전체 여행 조회
+            history = recordService.getAllTravelHistory(userId);
+        } else {
+            // 특정 여행 조회
+            history = recordService.getTravelHistory(userId, tripId);
         }
 
-        List<RecordResponseDTO> history = recordService.getTravelHistory(userId, travelId);
         return ResponseEntity.ok(history);
+    }
+
+    /**
+     * 사용자의 최신 방문 기록 리스트 (최대 5개)
+     */
+    @GetMapping("/recent")
+    public ResponseEntity<List<RecordResponseDTO>> getRecentRecords(@RequestHeader("Authorization") String token) {
+        Long userId = extractUserId(token);
+        return ResponseEntity.ok(recordService.getRecentRecords(userId));
+    }
+
+    /**
+     * 사용자의 전체 방문 기록을 최신순으로 정렬하여 반환 (기록 안 한 항목 상단 배치)
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<RecordResponseDTO>> getAllRecords(@RequestHeader("Authorization") String token) {
+        Long userId = extractUserId(token);
+        return ResponseEntity.ok(recordService.getAllRecords(userId));
     }
 }

@@ -96,6 +96,7 @@ public class UserController {
     }
 
     //회원 정보 조회 (GET /users/me)
+    //회원 정보 조회 (GET /users/me)
     @GetMapping("/me")
     public ResponseEntity<?> getUserProfile(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
@@ -111,10 +112,10 @@ public class UserController {
         return ResponseEntity.ok(Map.of(
                 "userId", user.getUserId(),
                 "nickname", user.getNickname(),
+                "friendCode", user.getFriendCode(),
                 "gender", user.getGender(),
                 "birthDate", user.getBirthDate(),
                 "profilePhoto", user.getProfilePhoto(),
-                "travelCount", user.getRecordCount(),
                 "recordCount", 0,
                 "interestAreas", interestAreas
         ));

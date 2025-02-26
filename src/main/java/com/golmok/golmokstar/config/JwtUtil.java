@@ -92,4 +92,14 @@ public class JwtUtil {
         refreshTokenStore.remove(userId.toString());
     }
 
+    //JWT에서 userId 추출하는 메서드 추가
+    public Long extractUserId(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY) //서명 검증
+                .parseClaimsJws(token)     //JWT 파싱
+                .getBody();
+
+        return claims.get("userId", Long.class); //JWT의 userId 클레임 추출
+    }
+
 }

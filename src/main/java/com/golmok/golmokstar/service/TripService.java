@@ -11,6 +11,9 @@ import com.golmok.golmokstar.repository.TripRepository;
 import com.golmok.golmokstar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +24,11 @@ public class TripService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
 
-    // 여행 일정 등록
+    //여행 일정 등록
     @Transactional
-    public TripResponseDto createTrip(TripCreateRequestDto request) {
-        // UserId가 존재하는 지 확인
-        User user = userRepository.findById(request.getUserId())
+    public TripResponseDto createTrip(Long userId, TripCreateRequestDto request) {
+        //UserId가 존재하는 지 확인 (request.getUserId() → userId로 변경)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(404, "해당 userId를 찾을 수 없습니다."));
 
         Trip trip = Trip.builder()
@@ -45,7 +48,7 @@ public class TripService {
 
     }
 
-    // 여행 일정 수정
+    //여행 일정 수정
     @Transactional
     public TripResponseDto updateTrip(TripUpdateRequestDto request) {
         Trip trip = tripRepository.findById(request.getTripId())
@@ -62,14 +65,14 @@ public class TripService {
                 .build();
     }
 
-    // 특정 여행 일정 조회
+    //특정 여행 일정 조회
     public TripDetailResponseDto getTrip(Long tripId) {
         Trip trip = tripRepository.findByIdWithUser(tripId)
                 .orElseThrow(() -> new CustomException(404, "해당 tripId를 찾을 수 없습니다."));
 
         return TripDetailResponseDto.builder()
                 .tripId(trip.getTripId())
-                .userId(trip.getUser().getUserId()) // ✅ NullPointerException 방지
+                .userId(trip.getUser().getUserId()) //NullPointerException 방지
                 .title(trip.getTitle())
                 .startDate(trip.getStartDate())
                 .endDate(trip.getEndDate())
@@ -79,7 +82,7 @@ public class TripService {
 
 
 
-    // 여행 일정 삭제
+    //여행 일정 삭제
     @Transactional
     public void deleteTrip(Long tripId) {
         if(!tripRepository.existsById(tripId)) {
@@ -87,4 +90,17 @@ public class TripService {
         }
         tripRepository.deleteById(tripId);
     }
+
+    //현재 진행 중인 여행 조회
+    public Optional<Map<String, Object>> getCurrentTrip(Long userId) {
+        LocalDate today = LocalDate.now();
+        Optional<Trip> currentTrip = tripRepository.findByUser_UserIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                userId, today, today);
+
+        return currentTrip.map(trip -> Map.of(
+                "tripId", trip.getTripId(),
+                "title", trip.getTitle()
+        ));
+    }
+
 }

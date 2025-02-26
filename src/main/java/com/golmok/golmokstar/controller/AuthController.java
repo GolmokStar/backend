@@ -63,7 +63,6 @@ public class AuthController {
 
         //회원가입이 필요한 경우, 201 Created 반환
         return ResponseEntity.status(201).body(Map.of(
-                "code", 201,
                 "status", "signup_required",
                 "googleId", googleId
         ));

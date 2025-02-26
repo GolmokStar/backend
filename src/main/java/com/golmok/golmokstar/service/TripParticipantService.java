@@ -11,7 +11,6 @@ import com.golmok.golmokstar.repository.TripParticipantRepository;
 import com.golmok.golmokstar.repository.TripRepository;
 import com.golmok.golmokstar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +30,13 @@ public class TripParticipantService {
     public TripParticipantResponseDto addParticipant(TripParticipantRequestDto request) {
         // 여행 및 사용자 존재 여부 확인
         Trip trip = tripRepository.findById(request.getTripId())
-                .orElseThrow(()-> new CustomException(404, "해당 여행을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 여행을 찾을 수 없습니다."));
 
         User user = userRepository.findById(request.getFriendUserId())
-                .orElseThrow(()-> new CustomException(404, "해당 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 사용자를 찾을 수 없습니다."));
 
         // 중복 참가자 확인 로직
-        if ( tripParticipantRepository.findByTripIdAndUserId(trip.getId(), user.getUserId()).isPresent() ) {
+        if (tripParticipantRepository.findByTrip_TripIdAndUser_UserId(trip.getTripId(), user.getUserId()).isPresent()) {
             throw new CustomException(400, "이미 해당 여행에 참가하고 있는 사용자입니다.");
         }
 
@@ -51,14 +50,13 @@ public class TripParticipantService {
 
         return TripParticipantResponseDto.builder()
                 .tripParticipantId(participant.getId())
-                .message("여행 참가자가 성공적으로 추가되었습니.")
+                .message("여행 참가자가 성공적으로 추가되었습니다.")
                 .build();
-
     }
 
     // 특정 여행 참가자 목록 조회
     public List<TripParticipantListResponseDto> getParticipants(Long tripId) {
-        List<TripParticipant> participants = tripParticipantRepository.findByTripId(tripId);
+        List<TripParticipant> participants = tripParticipantRepository.findByTrip_TripId(tripId);
 
         // 참가자가 없는 경우 - 404 Error
         if (participants.isEmpty()) {

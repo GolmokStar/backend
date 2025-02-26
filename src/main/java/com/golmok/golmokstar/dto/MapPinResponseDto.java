@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class MapPinResponseDto {
 
-    private Integer pinId;
+    private Long pinId;  //Integer → Long 변경
     private String message;
 
 }

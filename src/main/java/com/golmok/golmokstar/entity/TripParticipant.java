@@ -3,32 +3,25 @@ package com.golmok.golmokstar.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "TripParticipant")
+@Table(name = "trip_participant")
 public class TripParticipant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // ✅ 자동 증가 설정
     private Long id;
 
-    @ManyToMany
-    @JoinTable(
-            name = "trip_participant",
-            joinColumns = @JoinColumn(name = "participant_id"),
-            inverseJoinColumns = @JoinColumn(name = "trip_id")
-    )
-    private List<Trip> trips;
+    @ManyToOne
+    @JoinColumn(name = "trip_id", nullable = false)
+    private Trip trip;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
 }
 

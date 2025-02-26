@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "Trip")
@@ -13,16 +14,15 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Trip {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long tripId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "userId", nullable = false)
+    private User user; // 여행을 만든 사용자
 
     @Column(nullable = false, length = 8)
     @NotBlank(message = "title은 공백이 아니어야 합니다.")
@@ -30,8 +30,19 @@ public class Trip {
     private String title;
 
     @Column(nullable = false)
-    private LocalDate startDate;
+    private LocalDate startDate; // 시작 날짜
 
     @Column(nullable = false)
-    private LocalDate endDate;
+    private LocalDate endDate; // 종료 날짜
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MapPin> mapPins; // 해당 여행에서 찍힌 핀들
+
+    @Builder
+    public Trip(User user, String title, LocalDate startDate, LocalDate endDate) {
+        this.user = user;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }

@@ -16,7 +16,7 @@ public class MapPin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer pinId;
+    private Long pinId;  // ✅ Integer → Long으로 변경
 
     @ManyToOne
     @JoinColumn(name = "trip_id", nullable = false)

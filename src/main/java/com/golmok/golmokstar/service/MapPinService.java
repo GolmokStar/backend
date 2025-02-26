@@ -17,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 @Service
 @RequiredArgsConstructor
 public class MapPinService {
@@ -64,21 +62,22 @@ public class MapPinService {
     public MapPinResponseDto visitPlace(MapPinVisitRequestDto request) {
         // MapPin 존재 여부 확인
         MapPin mapPin = mapPinRepository.findById(request.getPinId())
-                .orElseThrow(()-> new CustomException(404, "해당 pinId를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(404, "해당 pinId를 찾을 수 없습니다."));
 
-        // pinType 값 검증 (FAVORED, RECORDED, VISITING_PENDING이 아니면 400 에러)
-        if(request.getPinType() != PinType.VISTING_PENDING ) {
+        // pinType 값 검증 (FAVORED, VISITED_PENDING, RECORDED만 허용)
+        if(request.getPinType() != PinType.FAVORED
+                && request.getPinType() != PinType.VISITED_PENDING
+                && request.getPinType() != PinType.RECORDED) { // ✅ 모든 경우 검증
             throw new CustomException(400, "올바른 pinType이 아닙니다.");
         }
 
-        // pinType 변경 (FAVORED, RECORDED, VISITING_PENDING 중)
+        // pinType 변경
         mapPin.setPinType(request.getPinType());
         mapPinRepository.save(mapPin);
 
         return MapPinResponseDto.builder()
-                .pinId(mapPin.getPinId())
+                .pinId(mapPin.getPinId()) // ✅ Long 타입 유지
                 .message("장소 방문하기 성공")
                 .build();
-
     }
 }

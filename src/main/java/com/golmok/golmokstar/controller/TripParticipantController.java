@@ -34,9 +34,10 @@ public class TripParticipantController {
     }
 
     // 특정 여행에서 참가자를 삭제
-    @DeleteMapping("/trip-participants/{tripId}")
+    @DeleteMapping("/trip-participants/{tripParticipantId}")
     public ResponseEntity<?> removeParticipant(@PathVariable Long tripParticipantId) {
         TripParticipantResponseDto response = tripParticipantService.removeParticipant(tripParticipantId);
         return ResponseEntity.ok(response);
     }
+
 }

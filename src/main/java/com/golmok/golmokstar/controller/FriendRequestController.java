@@ -6,7 +6,9 @@ import com.golmok.golmokstar.service.FriendService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,44 +20,68 @@ public class FriendRequestController {
         this.friendRequestService = friendRequestService;
     }
 
+    // 친구 요청 목록 조회
+    @PostMapping("/{friendCode}")
+    public ResponseEntity<?> getFriendRequestsByFriendCode (@PathVariable String friendCode) {
+        try {
+            List<FriendRequestListResponseDto> response = friendRequestService.getFriendRequestsByFriendCode(friendCode);
+            return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "친구 요청 목록 조회 로직 오류"));
+        }
+    }
+
+    // 친구 요청 생성
     @PostMapping
     public ResponseEntity<?> createFriendRequest(@RequestBody CreateFriendRequestDto dto) {
         try {
             CreateFriendRequestResponseDto response = friendRequestService.createFriendRequest(dto);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "친구 요청 생성 로직 오류"));
         }
     }
 
-    @GetMapping("/{requestId}")
-    public ResponseEntity<?> getFriendRequestsStatusDetail(@PathVariable Long requestId) {
+    // 친구 요청 수락 및 친구 추가
+    @PutMapping("/accept/{requestId}")
+    public ResponseEntity<?> acceptFriendRequest(@PathVariable Long requestId) {
         try {
-            GetFriendRequestStatusDetailResponseDto response = friendRequestService.getFriendRequestStatusDetail(requestId);
+            AcceptFriendRequestResponseDto response = friendRequestService.acceptFriendRequest(requestId);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "친구 요청 수락 로직 오류"));
         }
     }
 
-    @PutMapping("/{requestId}/respond")
-    public ResponseEntity<?> respondToFriendRequest(@PathVariable Long requestId, @RequestBody RespondToFriendRequestRequestDto dto) {
+    // 친구 요청 거절
+    @PutMapping("/reject/{requestId}")
+    public ResponseEntity<?> rejectFriendRequest(@PathVariable Long requestId) {
         try {
-            RespondToFriendRequestResponseDto response = friendRequestService.respondToFriendRequest(requestId, dto);
+            RejectFriendRequestResponse response = friendRequestService.rejectFriendRequest(requestId);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // 일단 모두 BadRequest로 터지게 해놓았음. 수정 필요
+        } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "친구 요청 거절 로직 오류"));
         }
     }
 
+    // 친구 요청 삭제
     @DeleteMapping("{requestId}")
     public ResponseEntity<?> deleteFriend(@PathVariable Long requestId) {
         try {
             DeleteFriendRequestResponseDto response = friendRequestService.deleteFriendRequest(requestId);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "친구 요청 삭제 로직 오류"));
         }
     }
 }

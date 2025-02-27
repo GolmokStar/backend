@@ -12,4 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     //userId로 유저 찾기
     Optional<User> findByUserId(Long userId);
+
+    //friendCode 로 유저 찾기
+    Optional<User> findByFriendCode(String friendCode);
 }

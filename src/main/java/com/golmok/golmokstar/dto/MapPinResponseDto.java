@@ -2,6 +2,7 @@ package com.golmok.golmokstar.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.golmok.golmokstar.enums.PinType;
+import com.golmok.golmokstar.enums.PlaceType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,6 +15,8 @@ public class MapPinResponseDto {
 
     private Long pinId;  //Integer → Long 변경
     private String googlePlaceId;
+    // ✅ placeType 추가
+    private PlaceType placeType;
     private String placeName;
     private double latitude;
     private double longitude;

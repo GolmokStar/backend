@@ -35,7 +35,7 @@ public class MapPin {
     private String placeName;
 
     @Enumerated(EnumType.STRING)
-    private PlaceType placeType;
+    private PlaceType placeType = PlaceType.UNKNOWN; // ✅ 기본값 설정
 
     @Column(nullable = false)
     private double latitude;

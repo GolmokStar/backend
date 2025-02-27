@@ -5,6 +5,7 @@ import com.golmok.golmokstar.dto.*;
 import com.golmok.golmokstar.entity.*;
 import com.golmok.golmokstar.entity.Record;
 import com.golmok.golmokstar.enums.PinType;
+import com.golmok.golmokstar.enums.PlaceType;
 import com.golmok.golmokstar.exception.CustomException;
 import com.golmok.golmokstar.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class MapPinService {
                 .user(user)
                 .googlePlaceId(mapPinRequestDto.getGooglePlaceId())
                 .placeName(mapPinRequestDto.getPlaceName())
+                .placeType(mapPinRequestDto.getPlaceType())     // ✅ placeType 추가
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .pinType(PinType.FAVORED)
@@ -48,7 +50,7 @@ public class MapPinService {
         mapPinRepository.save(mapPin);
 
         int remainingDays = calculateRemainingDays(trip.getStartDate());
-        return buildMapPinResponse(mapPin, "장소 찜 완료", remainingDays);
+        return buildFavoredResponse(mapPin, "장소 찜 완료", remainingDays);
     }
 
     // ✅ 장소 방문하기 (VISITED_PENDING)
@@ -75,7 +77,7 @@ public class MapPinService {
                 .build();
 
         mapPinRepository.save(mapPin);
-        return buildMapPinResponse(mapPin, "장소 방문하기 성공", 0);
+        return buildVisitResponse(mapPin, "장소 방문하기 성공");
     }
 
     // ✅ 장소 RECORDED 상태로 변경
@@ -91,7 +93,7 @@ public class MapPinService {
         mapPin.setPinType(PinType.RECORDED);
         mapPinRepository.save(mapPin);
 
-        return buildMapPinResponse(mapPin, "장소의 상태가 기록 상태로 변경되었습니다.", 0);
+        return buildRecordResponse(mapPin, "장소의 상태가 기록 상태로 변경되었습니다.");
     }
 
     // ✅ 특정 여행(tripId)과 연결된 장소 조회
@@ -127,6 +129,7 @@ public class MapPinService {
 
     // ✅ 상세 MapPin 응답 생성 (buildDetailedMapPinResponse 추가)
     private MapPinResponseDto buildDetailedMapPinResponse(MapPin mapPin) {
+        int remainingDays = mapPin.getTrip() != null ? calculateRemainingDays(mapPin.getTrip().getStartDate()) : 0;
         MapPinResponseDto.MapPinResponseDtoBuilder dtoBuilder = MapPinResponseDto.builder()
                 .pinId(mapPin.getPinId())
                 .googlePlaceId(mapPin.getGooglePlaceId())
@@ -134,7 +137,8 @@ public class MapPinService {
                 .latitude(mapPin.getLatitude())
                 .longitude(mapPin.getLongitude())
                 .pinType(mapPin.getPinType())
-                .createdAt(mapPin.getCreatedAt());
+                .createdAt(mapPin.getCreatedAt())
+                .remainingDays(remainingDays);
 
         if (mapPin.getPinType() == PinType.RECORDED && mapPin.getTrip() != null) {
             dtoBuilder.tripName(mapPin.getTrip().getTitle())
@@ -171,7 +175,41 @@ public class MapPinService {
         return (int) ChronoUnit.DAYS.between(LocalDate.now(), startDate);
     }
 
-    private MapPinResponseDto buildMapPinResponse(MapPin mapPin, String message, int remainingDays) {
+    private MapPinResponseDto buildFavoredResponse(MapPin mapPin, String message, int remainingDays) {
+        return MapPinResponseDto.builder()
+                .pinId(mapPin.getPinId())
+                .googlePlaceId(mapPin.getGooglePlaceId())
+                .latitude(mapPin.getLatitude())
+                .longitude(mapPin.getLongitude())
+                .pinType(mapPin.getPinType())  // ✅ pinType 정상 반영
+                .createdAt(mapPin.getCreatedAt())
+                .remainingDays(remainingDays)
+                .message(message)
+                .build();
+    }
+
+    private MapPinResponseDto buildVisitResponse(MapPin mapPin, String message) {
+        return MapPinResponseDto.builder()
+                .pinId(mapPin.getPinId())
+                .googlePlaceId(mapPin.getGooglePlaceId())
+                .latitude(mapPin.getLatitude())
+                .longitude(mapPin.getLongitude())
+                .createdAt(mapPin.getCreatedAt())
+                .message(message)
+                .build();
+
+    }
+
+    private MapPinResponseDto buildRecordResponse(MapPin mapPin, String message) {
+        return MapPinResponseDto.builder()
+                .pinId(mapPin.getPinId())
+                .pinType(mapPin.getPinType())
+                .message(message)
+                .build();
+    }
+
+
+    private MapPinResponseDto buildMapPinResponse(MapPin mapPin, String message) {
         return MapPinResponseDto.builder()
                 .pinId(mapPin.getPinId())
                 .googlePlaceId(mapPin.getGooglePlaceId())
@@ -180,7 +218,6 @@ public class MapPinService {
                 .longitude(mapPin.getLongitude())
                 .createdAt(mapPin.getCreatedAt())
                 .message(message)
-                .remainingDays(remainingDays)
                 .build();
     }
 }

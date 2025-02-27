@@ -9,7 +9,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "trip_participant")
+@Table(name = "trip_participant", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"trip_id", "user_id"})
+})
 public class TripParticipant {
 
     @Id
@@ -24,4 +26,3 @@ public class TripParticipant {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }
-

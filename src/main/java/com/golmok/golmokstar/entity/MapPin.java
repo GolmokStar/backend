@@ -1,6 +1,7 @@
 package com.golmok.golmokstar.entity;
 
 import com.golmok.golmokstar.enums.PinType;
+import com.golmok.golmokstar.enums.PlaceType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,9 +27,20 @@ public class MapPin {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "place_id", nullable = false)
-    private Place place;
+    @Column(nullable = false)
+    private String googlePlaceId; // ✅ Place 엔티티 없이 직접 저장
+
+    @Column(nullable = false)
+    private String placeName; // ✅ Place 엔티티 없이 직접 저장
+
+    @Enumerated(EnumType.STRING)
+    private PlaceType placeType;        // ✅String -> PlaceType
+
+    @Column(nullable = false)
+    private double latitude;   // ✅ 위도 추가
+
+    @Column(nullable = false)
+    private double longitude; // ✅ 경도 추가
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

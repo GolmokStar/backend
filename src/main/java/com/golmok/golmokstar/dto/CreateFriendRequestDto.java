@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public class CreateFriendRequestDto {
-    private final Long requesterId;
-    private final Long receiverId;
+    private final String requesterFriendCode;
+    private final String receiverFriendCode;
 
-    public CreateFriendRequestDto(Long requesterId, Long reveiverId) {
-        this.requesterId = requesterId;
-        this.receiverId = reveiverId;
+    public CreateFriendRequestDto(String requesterFriendCode, String receiverFriendCode) {
+        this.requesterFriendCode = requesterFriendCode;
+        this.receiverFriendCode = receiverFriendCode;
     }
 }

@@ -14,42 +14,38 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/trips") //공통 경로 설정
+@RequestMapping("/trips") // 공통 경로 설정
 public class TripController {
 
     private final TripService tripService;
     private final JwtUtil jwtUtil; //JWT에서 userId를 추출하는 유틸리티 추가
 
-    //여행 일정 등록 (accessToken → userId 추출)
+    // 여행 일정 등록 (토큰을 그대로 전달)
     @PostMapping
     public ResponseEntity<?> createTrip(
-            @RequestHeader("Authorization") String token, //클라이언트에서 accessToken을 헤더로 전달
+            @RequestHeader("Authorization") String token,
             @RequestBody @Valid TripCreateRequestDto request) {
 
-        //"Bearer " 접두사 제거 후 JWT에서 userId 추출
-        String accessToken = token.replace("Bearer ", "");
-        Long userId = jwtUtil.extractUserId(accessToken);
+        String accessToken = token.replace("Bearer ", ""); // "Bearer " 제거
 
-        //날짜 검증
+        // 날짜 검증
         if (!request.getEndDate().isAfter(request.getStartDate())) {
             return ResponseEntity.badRequest().body(
                     Map.of("success", false, "error", "endDate는 startDate보다 이후여야 합니다.")
             );
         }
 
-        //userId를 포함하여 Trip 생성 요청
-        TripResponseDto response = tripService.createTrip(userId, request);
+        TripResponseDto response = tripService.createTrip(accessToken, request);
         return ResponseEntity.ok(response);
     }
 
-    //여행 일정 수정 (accessToken 사용)
+    // 여행 일정 수정 (토큰을 그대로 전달)
     @PutMapping("/{tripId}")
     public ResponseEntity<?> updateTrip(
             @RequestHeader("Authorization") String token,
             @RequestBody @Valid TripUpdateRequestDto request) {
 
         String accessToken = token.replace("Bearer ", "");
-        Long userId = jwtUtil.extractUserId(accessToken);
 
         if (!request.getEndDate().isAfter(request.getStartDate())) {
             return ResponseEntity.badRequest().body(
@@ -57,27 +53,26 @@ public class TripController {
             );
         }
 
-        TripResponseDto response = tripService.updateTrip(userId, request);
+        TripResponseDto response = tripService.updateTrip(accessToken, request);
         return ResponseEntity.ok(response);
     }
 
-    //특정 여행 일정 조회
+    // 특정 여행 일정 조회 (변경 없음)
     @GetMapping("/{tripId}")
     public ResponseEntity<?> getTrip(@PathVariable Long tripId) {
         TripDetailResponseDto response = tripService.getTrip(tripId);
         return ResponseEntity.ok(response);
     }
 
-    //여행 일정 삭제 (accessToken 사용)
+    // 여행 일정 삭제 (토큰을 그대로 전달)
     @DeleteMapping("/{tripId}")
     public ResponseEntity<?> deleteTrip(
             @RequestHeader("Authorization") String token,
             @PathVariable Long tripId) {
 
         String accessToken = token.replace("Bearer ", "");
-        Long userId = jwtUtil.extractUserId(accessToken);
 
-        tripService.deleteTrip(userId, tripId);
+        tripService.deleteTrip(accessToken, tripId);
         return ResponseEntity.ok(Map.of("success", true, "message", "여행 일정이 삭제되었습니다."));
     }
 

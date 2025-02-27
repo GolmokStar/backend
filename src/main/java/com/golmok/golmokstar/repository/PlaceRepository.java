@@ -10,4 +10,7 @@ public interface PlaceRepository extends JpaRepository <Place, Long> {
     // 중복 장소 확인 (장소명을 통해 조회)
     Optional<Place> findByPlaceName(String placeName);
 
+    // ✅ googlePlaceId로 장소 조회
+    Optional<Place> findByGooglePlaceId(String googlePlaceId);
+
 }

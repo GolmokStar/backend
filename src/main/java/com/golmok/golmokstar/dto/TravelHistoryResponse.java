@@ -48,7 +48,8 @@ public class TravelHistoryResponse {
                 this.comment = record.getComment();
                 this.photo = record.getPhoto();
             }
-            this.visitDate = pin.getCreatedAt().toLocalDate(); //방문 날짜
+            // ✅ pin.getCreatedAt().toLocalDate() -> pin.getCreatedAt() 수정
+            this.visitDate = pin.getCreatedAt(); //방문 날짜
         }
 
         /**

@@ -5,6 +5,7 @@ import com.golmok.golmokstar.enums.PlaceType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -47,5 +48,5 @@ public class MapPin {
     private PinType pinType;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 }

@@ -140,5 +140,4 @@ public class DiaryService {
 
         return result;
     }
-
 }

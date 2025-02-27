@@ -1,7 +1,6 @@
 package com.golmok.golmokstar.repository;
 
 import com.golmok.golmokstar.entity.Diary;
-import com.golmok.golmokstar.entity.FriendRequest;
 import com.golmok.golmokstar.entity.Trip;
 import org.springframework.data.jpa.repository.JpaRepository;
 

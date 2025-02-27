@@ -75,7 +75,7 @@ public class MapPinService {
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .pinType(PinType.FAVORED)
-                .createdAt(LocalDateTime.now()) // 찜하기 성공한 시간을 반환
+                .createdAt(LocalDate.now()) // 찜하기 성공한 시간을 반환
                 .build();
 
         mapPinRepository.save(mapPin);

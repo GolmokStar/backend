@@ -1,5 +1,6 @@
 package com.golmok.golmokstar.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golmok.golmokstar.dto.*;
 import com.golmok.golmokstar.entity.Diary;
 import com.golmok.golmokstar.entity.Trip;
@@ -12,9 +13,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,6 +31,8 @@ public class DiaryService {
     private final TripRepository tripRepository;
     private final RecordRepository recordRepository;
     private final UserRepository userRepository;
+
+    private static final String AI_DIARY_URL = "http://34.47.73.224:5000/diary";
 
     // 다이어리 작성 (생성)
     @Transactional
@@ -173,5 +179,23 @@ public class DiaryService {
         diaryRepository.deleteById(diaryId);
 
         return new DeleteDiaryResponseDto(diaryId);
+    }
+
+    // ai 일기를 호출해 프론트에게 던져주기
+    public AiDiaryResponseDto getAiDiary(LocalDate selectedDate, Long userId) {
+        try {
+            // 프론트에서 받아온 값으로 ai 일기를 호출하는 url을 설정한다.
+            String requestUrl = String.format("%s?selected_date=%s&user_id=%d", AI_DIARY_URL, selectedDate, userId);
+            URL url = new URL(requestUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(connection.getInputStream(), AiDiaryResponseDto.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("ai 일기 가져오기 실패..", e);
+        }
     }
 }

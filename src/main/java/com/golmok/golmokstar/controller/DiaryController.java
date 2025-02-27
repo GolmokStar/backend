@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -87,6 +88,7 @@ public class DiaryController {
         }
     }
 
+    // 다이어리 삭제
     @DeleteMapping("{diaryId}")
     public ResponseEntity<?> deleteDiary(@PathVariable Long diaryId) {
         try {
@@ -94,6 +96,18 @@ public class DiaryController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ai 일기를 호출해 프론트에게 일기 내용 던져주기
+    // 요청예시 : GET - /diary?selected_date=YYYY-MM-DD&user_id=1
+    @GetMapping("/ai")
+    public ResponseEntity<?> getAllDiaries(@RequestParam LocalDate selected_date, @RequestParam Long user_id) {
+        try {
+            AiDiaryResponseDto aiDiary = diaryService.getAiDiary(selected_date, user_id);
+            return ResponseEntity.ok(aiDiary);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 }

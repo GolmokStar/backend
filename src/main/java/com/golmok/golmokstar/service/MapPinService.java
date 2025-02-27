@@ -35,12 +35,17 @@ public class MapPinService {
         Trip trip = getTripById(mapPinRequestDto.getTripId());
         User user = getUserById(userId);
 
+        // ✅ enum에 없는 값이거나 null -> unknown
+        PlaceType placeType = (mapPinRequestDto.getPlaceType() != null) ?
+                PlaceType.fromString(mapPinRequestDto.getPlaceType().toString()) : PlaceType.UNKNOWN;
+
+
         MapPin mapPin = MapPin.builder()
                 .trip(trip)
                 .user(user)
                 .googlePlaceId(mapPinRequestDto.getGooglePlaceId())
                 .placeName(mapPinRequestDto.getPlaceName())
-                .placeType(mapPinRequestDto.getPlaceType())     // ✅ placeType 추가
+                .placeType(placeType)
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .pinType(PinType.FAVORED)
@@ -50,7 +55,7 @@ public class MapPinService {
         mapPinRepository.save(mapPin);
 
         int remainingDays = calculateRemainingDays(trip.getStartDate());
-        return buildFavoredResponse(mapPin, "장소 찜 완료", remainingDays);
+        return buildMapPinResponse(mapPin, "장소 찜 완료", remainingDays);
     }
 
     // ✅ 장소 방문하기 (VISITED_PENDING)
@@ -77,7 +82,7 @@ public class MapPinService {
                 .build();
 
         mapPinRepository.save(mapPin);
-        return buildVisitResponse(mapPin, "장소 방문하기 성공");
+        return buildMapPinResponse(mapPin, "장소 방문하기 성공", 0);
     }
 
     // ✅ 장소 RECORDED 상태로 변경
@@ -93,7 +98,7 @@ public class MapPinService {
         mapPin.setPinType(PinType.RECORDED);
         mapPinRepository.save(mapPin);
 
-        return buildRecordResponse(mapPin, "장소의 상태가 기록 상태로 변경되었습니다.");
+        return buildMapPinResponse(mapPin, "장소의 상태가 기록 상태로 변경되었습니다.", 0);
     }
 
     // ✅ 특정 여행(tripId)과 연결된 장소 조회
@@ -140,11 +145,23 @@ public class MapPinService {
                 .createdAt(mapPin.getCreatedAt())
                 .remainingDays(remainingDays);
 
-        if (mapPin.getPinType() == PinType.RECORDED && mapPin.getTrip() != null) {
-            dtoBuilder.tripName(mapPin.getTrip().getTitle())
+//        if (mapPin.getPinType() == PinType.RECORDED && mapPin.getTrip() != null) {
+//            dtoBuilder.tripName(mapPin.getTrip().getTitle())
+//                    .startDate(mapPin.getTrip().getStartDate())
+//                    .endDate(mapPin.getTrip().getEndDate());
+//
+//            Optional<Record> record = recordRepository.findByMapPin(mapPin);
+//            record.ifPresent(r -> dtoBuilder.rating(r.getRating()));
+//        }
+
+        if (mapPin.getTrip() != null) { // ✅ trip이 존재하는 경우 tripId 추가
+            dtoBuilder.tripId(mapPin.getTrip().getTripId())  // ✅ tripId 반환
+                    .tripName(mapPin.getTrip().getTitle())
                     .startDate(mapPin.getTrip().getStartDate())
                     .endDate(mapPin.getTrip().getEndDate());
+        }
 
+        if (mapPin.getPinType() == PinType.RECORDED) {
             Optional<Record> record = recordRepository.findByMapPin(mapPin);
             record.ifPresent(r -> dtoBuilder.rating(r.getRating()));
         }
@@ -174,19 +191,28 @@ public class MapPinService {
     private int calculateRemainingDays(LocalDate startDate) {
         return (int) ChronoUnit.DAYS.between(LocalDate.now(), startDate);
     }
-
-    private MapPinResponseDto buildFavoredResponse(MapPin mapPin, String message, int remainingDays) {
-        return MapPinResponseDto.builder()
-                .pinId(mapPin.getPinId())
-                .googlePlaceId(mapPin.getGooglePlaceId())
-                .latitude(mapPin.getLatitude())
-                .longitude(mapPin.getLongitude())
-                .pinType(mapPin.getPinType())  // ✅ pinType 정상 반영
-                .createdAt(mapPin.getCreatedAt())
-                .remainingDays(remainingDays)
-                .message(message)
-                .build();
-    }
+//    private MapPinResponseDto buildFavoredResponse(MapPin mapPin, String message, int remainingDays, Trip trip) {
+//        return MapPinResponseDto.builder()
+//                .pinId(mapPin.getPinId())
+//                .googlePlaceId(mapPin.getGooglePlaceId())
+//                .latitude(mapPin.getLatitude())
+//                .longitude(mapPin.getLongitude())
+//                .pinType(mapPin.getPinType())  // ✅ pinType 정상 반영
+//                .createdAt(mapPin.getCreatedAt())
+//                .remainingDays(remainingDays)
+//
+//                .tripId(mapPin.getTrip().getTripId())
+//                .placeName(mapPin.getPlaceName())
+//                .placeType(mapPin.getPlaceType()) // ✅ placeType 반환 (UNKNOWN 처리 적용)
+//
+//                .title(trip.getTitle())  // ✅ tripId를 통해 title 조회
+//                .tripName(trip.getTitle())  // ✅ tripName 조회 (동일 값 사용)
+//                .startDate(trip.getStartDate())  // ✅ startDate 조회
+//                .endDate(trip.getEndDate())  // ✅ endDate 조회
+//
+//                .message(message)
+//                .build();
+//    }
 
     private MapPinResponseDto buildVisitResponse(MapPin mapPin, String message) {
         return MapPinResponseDto.builder()
@@ -209,7 +235,7 @@ public class MapPinService {
     }
 
 
-    private MapPinResponseDto buildMapPinResponse(MapPin mapPin, String message) {
+    private MapPinResponseDto buildMapPinResponse(MapPin mapPin, String message, int remainingDays) {
         return MapPinResponseDto.builder()
                 .pinId(mapPin.getPinId())
                 .googlePlaceId(mapPin.getGooglePlaceId())
@@ -217,6 +243,7 @@ public class MapPinService {
                 .latitude(mapPin.getLatitude())
                 .longitude(mapPin.getLongitude())
                 .createdAt(mapPin.getCreatedAt())
+                .remainingDays(remainingDays)       // ✅ 여행까지 남은 날짜 반환 추가
                 .message(message)
                 .build();
     }

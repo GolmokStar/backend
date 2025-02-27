@@ -18,4 +18,6 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     // diaryDate 가 특정 기간 안에 해당되는 Diary 조회
     List<Diary> findByDiaryDateBetween(LocalDate start, LocalDate end);
+
+    List<Diary> findByDiaryDateBetweenAndTrip_User_UserId(LocalDate start, LocalDate end, Long userId);
 }

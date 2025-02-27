@@ -60,13 +60,15 @@ public class DiaryController {
     }
 
     // 특정 월 방문 기록 & 일기 조회
-    @GetMapping("/{year}/{month}")
-    public ResponseEntity<?> getMonthlyHistoriesAndDiaries(@PathVariable int year, @PathVariable int month) {
+    @GetMapping("/{year}/{month}/{userId}")
+    public ResponseEntity<?> getMonthlyHistoriesAndDiaries(@PathVariable int year, @PathVariable int month, @PathVariable Long userId) {
         try {
-            List<GetMonthlyDiaryHistoriesDto> result = diaryService.getMonthlyDiaryHistoriesByMonth(year, month);
+            List<Map<String, Object>> result = diaryService.getMonthlyDiaryHistoriesByMonth(year, month, userId);
             return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "특정 월 방문 기록 & 일기 조회 내부 로직 오류"));
         }

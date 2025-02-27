@@ -33,7 +33,9 @@ public class TravelHistoryResponse {
 
         public PlaceHistory(MapPin pin, Record record) {
             this.pinId = pin.getPinId();
-            this.placeName = pin.getPlace().getPlaceName();
+            // ✅ Place 엔티티 없이 MapPin에서 직접 가져옴
+            // 수정 전 : this.placeName = pin.getPlace().getPlaceName();
+            this.placeName = pin.getPlaceName();
             this.location = "위치 정보 없음"; //필요하면 Place 엔티티에 필드 추가
 
             if (record == null) {

@@ -11,16 +11,12 @@ import java.util.Optional;
 
 @Repository
 public interface MapPinRepository extends JpaRepository<MapPin, Long> {
-    Optional<MapPin> findByPinIdAndPinType(Long pinId, PinType pinType); // ✅ PinType 수정
-    Optional<Place> findByGooglePlaceId(String googlePlaceId);      // ✅ googlePlaceId 추가
-    List<MapPin> findByTrip_TripIdAndUser_UserId(Long tripId, Long userId);
+    
+    Optional<MapPin> findByPinIdAndPinType(Long pinId, PinType pinType);
 
-    //사용자의 모든 여행에 속한 핀 조회 (전체 여행 기록용)
-    List<MapPin> findByUser_UserId(Long userId);
+    List<MapPin> findByTrip_TripIdAndUser_UserId(Long tripId, Long userId); // ✅ 정상적으로 사용 가능
 
-    // ✅ 특정 사용자의 모든 MapPin 조회
-    List<MapPin> findByUserId(Long userId);
+    List<MapPin> findByUser_UserId(Long userId);  // ✅ findByUserId → findByUser_UserId로 수정
 
-    // ✅ 특정 여행(tripId)과 연결된 장소 조회
-    List<MapPin> findByTripId(Long tripId);
+    List<MapPin> findByTrip_TripId(Long tripId); // ✅ findByTripId → findByTrip_TripId로 수정
 }

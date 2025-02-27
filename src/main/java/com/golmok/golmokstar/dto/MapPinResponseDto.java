@@ -17,7 +17,8 @@ public class MapPinResponseDto {
     private double latitude;
     private double longitude;
     private Integer remainingDays;
-    private LocalDateTime createdAt;
+    // ✅ LocalDateTime -> LocalDate 변경
+    private LocalDate createdAt;
     private String message;
 
     // 조회하기 ) tripId별 조회

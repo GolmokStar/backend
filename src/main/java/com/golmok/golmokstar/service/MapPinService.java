@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -70,7 +71,7 @@ public class MapPinService {
                 .user(user)
                 .googlePlaceId(mapPinRequestDto.getGooglePlaceId())     // ✅ place 엔티티 사용 X
                 .placeName(mapPinRequestDto.getPlaceName())     // ✅ place 엔티티 사용 X
-                .placeType(PlaceType.fromString(mapPinRequestDto.getPlaceType()).name())    // enum -> string 변환
+                .placeType(PlaceType.fromString(mapPinRequestDto.getPlaceType()))    // enum -> string 변환
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .pinType(PinType.FAVORED)
@@ -88,7 +89,7 @@ public class MapPinService {
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .remainingDays(remainingDays)
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDate.now())
                 .message("장소 찜 완료")
                 .build();
     }
@@ -132,7 +133,7 @@ public class MapPinService {
                 .googlePlaceId(mapPin.getGooglePlaceId())
                 .latitude(mapPin.getLatitude())
                 .longitude(mapPin.getLongitude())
-                .createdAt(LocalDateTime.now())     // 방문하기 성공 시간 반환
+                .createdAt(LocalDate.now())     // 방문하기 성공 시간 반환
                 .build();
     }
 
@@ -171,7 +172,8 @@ public class MapPinService {
         Long userId = jwtUtil.extractUserId(accessToken);
 
         // 사용자의 모든 mapPin 조회
-        List<MapPin> mapPins = mapPinRepository.findByUserId(userId);
+        // ✅ findByUserId -> findByUser_UserId 수정
+        List<MapPin> mapPins = mapPinRepository.findByUser_UserId(userId);
 
         // MapPin을 DTO로 변환하여 반환
         return mapPins.stream().map(mapPin -> {
@@ -181,7 +183,7 @@ public class MapPinService {
                     .placeName(mapPin.getPlaceName())
                     .latitude(mapPin.getLatitude())
                     .longitude(mapPin.getLongitude())
-                    .createdAt(mapPin.getCreatedAt());
+                    .createdAt(LocalDate.now());
 
             // record 상태일 경우 추가
             if(mapPin.getPinType() == PinType.RECORDED && mapPin.getTrip() != null) {
@@ -205,7 +207,8 @@ public class MapPinService {
         Long userId = jwtUtil.extractUserId(accessToken);
 
         // tripId로 장소 조회
-        List<MapPin> mapPins = mapPinRepository.findByTripId(tripId);
+        // ✅ findByUserId -> findByUser_UserId 수정
+        List<MapPin> mapPins = mapPinRepository.findByUser_UserId(tripId);
 
         if(mapPins.isEmpty()) {
             throw new CustomException(404, "해당 tripId에 대한 장소를 찾을 수 없습니다.");
@@ -222,7 +225,7 @@ public class MapPinService {
                     .pinType(mapPin.getPinType())
                     .tripId(mapPin.getTrip().getTripId())
                     .tripName(mapPin.getTrip().getTitle())
-                    .createdAt(mapPin.getCreatedAt());
+                    .createdAt(LocalDate.now());
 
             // RECORDED 상태라면 기록(`Record`)에서 별점 가져오기
             if (mapPin.getPinType() == PinType.RECORDED) {

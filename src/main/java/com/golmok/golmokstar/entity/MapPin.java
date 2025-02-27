@@ -38,6 +38,7 @@ public class MapPin {
 //    @JoinColumn(name = "place_id", nullable = false)
 //    private Place place;
 
+    // AI 파트에 넘기기 위해 사용
     @Enumerated(EnumType.STRING)
     private PlaceType placeType;        // ✅String -> PlaceType
 

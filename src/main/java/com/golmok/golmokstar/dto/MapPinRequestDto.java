@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -49,5 +50,5 @@ public class MapPinRequestDto {
     @NotNull(message = "pinType는 필수 값입니다.")
     private PinType pinType;
 
-    private LocalDateTime createdAt = LocalDateTime.now(); // 기본값 현재 시간
+    private LocalDate createdAt = LocalDate.now(); // 기본값 현재 시간
 }

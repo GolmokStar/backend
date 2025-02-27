@@ -120,7 +120,8 @@ public class RecordService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        List<MapPin> mapPins = mapPinRepository.findByUser(user);
+        // ✅ 메서드명 수정 (findByUser -> findByUserId)
+        List<MapPin> mapPins = mapPinRepository.findByUser_UserId(userId);
 
         return mapPins.stream()
                 .map(pin -> recordRepository.findByMapPin(pin)

@@ -1,6 +1,7 @@
 package com.golmok.golmokstar.entity;
 
 import com.golmok.golmokstar.enums.PinType;
+import com.golmok.golmokstar.enums.PlaceType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,7 +39,7 @@ public class MapPin {
 //    private Place place;
 
     @Enumerated(EnumType.STRING)
-    private String placeType;
+    private PlaceType placeType;        // ✅String -> PlaceType
 
     @Column(nullable = false)
     private double latitude;   // ✅ 위도 추가

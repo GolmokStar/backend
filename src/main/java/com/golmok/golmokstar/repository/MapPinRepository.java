@@ -15,6 +15,9 @@ public interface MapPinRepository extends JpaRepository<MapPin, Long> {
     Optional<Place> findByGooglePlaceId(String googlePlaceId);      // ✅ googlePlaceId 추가
     List<MapPin> findByTrip_TripIdAndUser_UserId(Long tripId, Long userId);
 
+    //사용자의 모든 여행에 속한 핀 조회 (전체 여행 기록용)
+    List<MapPin> findByUser_UserId(Long userId);
+
     // ✅ 특정 사용자의 모든 MapPin 조회
     List<MapPin> findByUserId(Long userId);
 

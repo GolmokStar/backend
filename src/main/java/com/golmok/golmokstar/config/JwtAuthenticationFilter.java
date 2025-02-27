@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && token.startsWith("Bearer ")) {
             try {
                 token = token.substring(7);
-                Long userId = jwtUtil.getUserIdFromToken(token);
+                Long userId = jwtUtil.extractUserId(token);
                 request.setAttribute("userId", userId);
 
                 //SecurityContextHolder에 인증 정보 저장하고 － Spring Security가 인증된 사용자로 인식하도록 설정

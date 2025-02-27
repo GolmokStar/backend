@@ -14,4 +14,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     // 친구 목록 조회시 사용한다.
     // 친구 등록 시 내 friendCode가 requester 일수도, receiver 일수도 있으므로 OR로 가져온다.
     List<Friend> findByCurrentUserOrFriendUser(User currentUser, User friendUser);
+
+    // 친구 요청 수락 전 이미 친구인지 확인
+    boolean existsByCurrentUserAndFriendUser(User currentUser, User friendUser);
 }

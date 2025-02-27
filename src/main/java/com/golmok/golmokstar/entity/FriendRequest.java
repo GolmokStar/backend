@@ -30,12 +30,12 @@ public class FriendRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "request_status")
-    public RequestStatus requestStatus = RequestStatus.PENDING;
+    private RequestStatus requestStatus = RequestStatus.PENDING;
 
     @Column(name = "request_date", nullable = false, columnDefinition = "DATE")
     private LocalDate requestDate;
 
-    @Column(name = "response_date", nullable = true)
+    @Column(name = "response_date", nullable = true, columnDefinition = "DATE")
     private LocalDate responseDate;
 
     public FriendRequest(User requester, User receiver, LocalDate requestDate) {

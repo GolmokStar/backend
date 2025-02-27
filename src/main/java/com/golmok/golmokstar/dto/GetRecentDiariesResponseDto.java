@@ -16,7 +16,7 @@ public class GetRecentDiariesResponseDto {
     private String photo;
     private String aiDraft;
 
-    public static GetRecentDiariesResponseDto fromEntity(Diary diary) {
+    public static GetRecentDiariesResponseDto fromEntityToDto(Diary diary) {
         return GetRecentDiariesResponseDto.builder()
                 .diaryId(diary.getDiaryId())
                 .tripId(diary.getTrip().getTripId())

@@ -7,19 +7,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.golmok.golmokstar.config.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/diary")
 public class DiaryController {
     private final DiaryService diaryService;
+    private final JwtUtil jwtUtil;
 
-    public DiaryController(DiaryService diaryService) {
-        this.diaryService = diaryService;
-    }
 
     // 다이어리 작성 (생성)
     @PostMapping
@@ -29,6 +33,8 @@ public class DiaryController {
             return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "다이어리 생성 내부 로직 오류"));
         }
@@ -99,16 +105,28 @@ public class DiaryController {
         }
     }
 
-    // ai 일기를 호출해 프론트에게 일기 내용 던져주기
-    // 요청예시 : GET - /diary?selected_date=YYYY-MM-DD&user_id=1
+    //ai 일기를 호출해 프론트에게 일기 내용 던져주기
     @GetMapping("/ai")
-    public ResponseEntity<?> getAllDiaries(@RequestParam String selectedDate, @RequestParam Long userId) {
+    public ResponseEntity<?> getAiDiary(
+            @RequestHeader("Authorization") String token, //JWT 토큰 받기
+            @RequestParam String selectedDate) {  //사용자가 선택한 날짜 받기
+
         try {
-            LocalDate date = LocalDate.parse(selectedDate);
-            AiDiaryResponseDto aiDiary = diaryService.getAiDiary(date, userId);
-            return ResponseEntity.ok(aiDiary);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+            //JWT에서 userId 추출 Bearer 제거하기
+            Long userId = jwtUtil.extractUserId(token.replace("Bearer ", "").trim());
+
+            //ai 서버에 userId랑 selectedDate 같이 요청
+            String aiDraft = diaryService.getAiDiary(LocalDate.parse(selectedDate), userId);
+
+            //프론트에는 ai_draft 내용 값만 반환
+            return ResponseEntity.ok(Map.of("ai_draft", aiDraft));
+
+        } catch (IllegalArgumentException e) { //날짜 형식이 잘못된 경우
+            return ResponseEntity.badRequest().body(Map.of("error", "날짜 형식이 잘못되었습니다."));
+        } catch (ResponseStatusException e) { //ai 서버 요청 실패 시
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of("error", e.getReason()));
+        } catch (Exception e) { //기타 예외 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "AI 일기 가져오기 실패"));
         }
     }
 }

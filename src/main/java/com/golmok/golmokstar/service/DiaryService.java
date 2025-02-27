@@ -1,5 +1,6 @@
 package com.golmok.golmokstar.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golmok.golmokstar.dto.*;
 import com.golmok.golmokstar.entity.Diary;
@@ -32,7 +33,8 @@ public class DiaryService {
     private final RecordRepository recordRepository;
     private final UserRepository userRepository;
 
-    private static final String AI_DIARY_URL = "http://34.47.73.224:5000/diary";
+    private static final String AI_DIARY_URL = "http://34.64.78.230:5000/diary";
+
 
     // 다이어리 작성 (생성)
     @Transactional
@@ -41,7 +43,7 @@ public class DiaryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 tripId를 찾을 수 없습니다."));
 
         // 일기 작성 날자가 Trip 의 startDate 와 endDate 사이에 있는지 검증
-        if (dto.getDiaryDate().isBefore(trip.getStartDate()) && dto.getDiaryDate().isAfter(trip.getEndDate())) {
+        if (dto.getDiaryDate().isBefore(trip.getStartDate()) || dto.getDiaryDate().isAfter(trip.getEndDate())) {
             throw new IllegalArgumentException("다이어리 작성 날자는 여행 기간 내에 있어야 합니다");
         }
 
@@ -181,21 +183,25 @@ public class DiaryService {
         return new DeleteDiaryResponseDto(diaryId);
     }
 
-    // ai 일기를 호출해 프론트에게 던져주기
-    public AiDiaryResponseDto getAiDiary(LocalDate date, Long userId) {
+    //ai 일기를 호출해서 프론트한테 주기
+    public String getAiDiary(LocalDate date, Long userId) {
         try {
-            // 프론트에서 받아온 값으로 ai 일기를 호출하는 url을 설정한다.
+            //ai 서버로 보낼 get요청
             String requestUrl = String.format("%s?selected_date=%s&user_id=%d", AI_DIARY_URL, date, userId);
             URL url = new URL(requestUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
 
+            //응답 JSON으로 파싱하기
             ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(connection.getInputStream(), AiDiaryResponseDto.class);
+            JsonNode jsonNode = objectMapper.readTree(connection.getInputStream());
+
+            //ai_draft만 프론트에 반환
+            return jsonNode.get("ai_draft").asText();
 
         } catch (Exception e) {
-            throw new RuntimeException("ai 일기 가져오기 실패..", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AI 일기 요청 실패", e);
         }
     }
 }

@@ -81,7 +81,7 @@ public class MapPinService {
         mapPinRepository.save(mapPin);
 
         // 여행 종료일까지 남은 일수 계산
-        int remainingDays = (int) ChronoUnit.DAYS.between(LocalDateTime.now(), trip.getStartDate());
+        int remainingDays = (int) ChronoUnit.DAYS.between(LocalDate.now(), trip.getStartDate());
 
         return MapPinResponseDto.builder()
                 .pinId(mapPin.getPinId())
@@ -89,7 +89,7 @@ public class MapPinService {
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .remainingDays(remainingDays)
-                .createdAt(LocalDate.now())
+                .createdAt(mapPin.getCreatedAt())
                 .message("장소 찜 완료")
                 .build();
     }

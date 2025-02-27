@@ -72,15 +72,9 @@ public class TripService {
     public TripDetailResponseDto getTrip(Long tripId) {
         Trip trip = tripRepository.findByIdWithUser(tripId)
                 .orElseThrow(() -> new CustomException(404, "해당 tripId를 찾을 수 없습니다."));
-
-        return TripDetailResponseDto.builder()
-                .tripId(trip.getTripId())
-                .userId(trip.getUser().getUserId())
-                .title(trip.getTitle())
-                .startDate(trip.getStartDate())
-                .endDate(trip.getEndDate())
-                .build();
+        return TripDetailResponseDto.from(trip);
     }
+
 
     //여행 일정 삭제 (userId 체크 추가)
     @Transactional

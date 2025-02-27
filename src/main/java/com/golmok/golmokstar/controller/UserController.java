@@ -96,7 +96,6 @@ public class UserController {
     }
 
     //회원 정보 조회 (GET /users/me)
-    //회원 정보 조회 (GET /users/me)
     @GetMapping("/me")
     public ResponseEntity<?> getUserProfile(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");

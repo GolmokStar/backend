@@ -13,9 +13,6 @@ import java.time.LocalDate;
 @Setter
 public class TripUpdateRequestDto {
 
-    @NotNull(message = "userId 입력은 필수입니다.")
-    private Long userId;
-
     @NotNull(message = "tripId는 필수 값입니다.")
     private Long tripId;
 
@@ -31,7 +28,7 @@ public class TripUpdateRequestDto {
     @FutureOrPresent(message = "endDate는 현재 또는 미래 날짜")
     private LocalDate endDate;
 
-    // 종료 날짜가 시작 날짜 이후로 설정
+    //종료 날짜가 시작 날짜 이후로 설정
     public boolean isEndDateAfterStartDate() {
         return endDate != null && startDate != null && endDate.isAfter(startDate);
     }

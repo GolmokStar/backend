@@ -23,7 +23,7 @@ public class TripController {
     //여행 일정 등록 (accessToken → userId 추출)
     @PostMapping
     public ResponseEntity<?> createTrip(
-            @RequestHeader("Authorization") String token, // 🔹 클라이언트에서 accessToken을 헤더로 전달
+            @RequestHeader("Authorization") String token, //클라이언트에서 accessToken을 헤더로 전달
             @RequestBody @Valid TripCreateRequestDto request) {
 
         //"Bearer " 접두사 제거 후 JWT에서 userId 추출

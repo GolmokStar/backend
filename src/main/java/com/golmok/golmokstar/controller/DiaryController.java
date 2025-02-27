@@ -102,9 +102,10 @@ public class DiaryController {
     // ai 일기를 호출해 프론트에게 일기 내용 던져주기
     // 요청예시 : GET - /diary?selected_date=YYYY-MM-DD&user_id=1
     @GetMapping("/ai")
-    public ResponseEntity<?> getAllDiaries(@RequestParam LocalDate selected_date, @RequestParam Long user_id) {
+    public ResponseEntity<?> getAllDiaries(@RequestParam String selectedDate, @RequestParam Long userId) {
         try {
-            AiDiaryResponseDto aiDiary = diaryService.getAiDiary(selected_date, user_id);
+            LocalDate date = LocalDate.parse(selectedDate);
+            AiDiaryResponseDto aiDiary = diaryService.getAiDiary(date, userId);
             return ResponseEntity.ok(aiDiary);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));

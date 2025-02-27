@@ -182,10 +182,10 @@ public class DiaryService {
     }
 
     // ai 일기를 호출해 프론트에게 던져주기
-    public AiDiaryResponseDto getAiDiary(LocalDate selectedDate, Long userId) {
+    public AiDiaryResponseDto getAiDiary(LocalDate date, Long userId) {
         try {
             // 프론트에서 받아온 값으로 ai 일기를 호출하는 url을 설정한다.
-            String requestUrl = String.format("%s?selected_date=%s&user_id=%d", AI_DIARY_URL, selectedDate, userId);
+            String requestUrl = String.format("%s?selected_date=%s&user_id=%d", AI_DIARY_URL, date, userId);
             URL url = new URL(requestUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");

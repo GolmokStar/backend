@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 public class TripCreateRequestDto {
@@ -26,6 +27,9 @@ public class TripCreateRequestDto {
     @NotNull(message = "endDate 입력은 필수입니다.")
     @FutureOrPresent(message = "endDate는 현재 또는 미래 날짜")
     private LocalDate endDate;
+
+    // 여행 참가자 리스트 추가
+    private List<Long> participants;
 
     //종료 날짜가 시작 날짜 이후로 설정
     public boolean isEndDateAfterStartDate() {

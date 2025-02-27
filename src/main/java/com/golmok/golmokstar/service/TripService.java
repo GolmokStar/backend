@@ -2,8 +2,10 @@ package com.golmok.golmokstar.service;
 
 import com.golmok.golmokstar.dto.*;
 import com.golmok.golmokstar.entity.Trip;
+import com.golmok.golmokstar.entity.TripParticipant;
 import com.golmok.golmokstar.entity.User;
 import com.golmok.golmokstar.exception.CustomException;
+import com.golmok.golmokstar.repository.TripParticipantRepository;
 import com.golmok.golmokstar.repository.TripRepository;
 import com.golmok.golmokstar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class TripService {
 
     private final TripRepository tripRepository;
+    private final TripParticipantRepository tripParticipantRepository;
     private final UserRepository userRepository;
 
     //여행 일정 등록
@@ -40,9 +43,35 @@ public class TripService {
 
         tripRepository.save(trip);
 
+        // ✅ 여행 생성 시 참가자 등록도 함께 되도록 추가
+        List<TripParticipantResponseDto> addParticipants = request.getParticipants().stream()
+                .map(participantId -> {
+                    User participant = userRepository.findById(participantId)
+                            .orElseThrow(() -> new CustomException(404, "해당 userId를 찾을 수 없습니다."));
+
+                    // 중복 참가 여부 확인
+                    if (tripParticipantRepository.existsByTripAndUser(trip, participant)){
+                        throw new CustomException(400, "이미 해당 여행에 참여하고 있는 사용자입니다");
+                    }
+
+                    TripParticipant tripParticipant = TripParticipant.builder()
+                            .trip(trip)
+                            .user(participant)
+                            .build();
+
+                    tripParticipantRepository.save(tripParticipant);
+
+                    return TripParticipantResponseDto.builder()
+                            .tripParticipantId(tripParticipant.getId())
+                            .userId(participantId)
+                            .message("여행 참가자가 성공적으로 추가되었습니다.")
+                            .build();
+                }).collect(Collectors.toList());
+
         return TripResponseDto.builder()
                 .success(true)
                 .tripId(trip.getTripId())
+                .addedParticipants(addParticipants)
                 .message("여행 일정이 성공적으로 등록되었습니다.")
                 .build();
     }

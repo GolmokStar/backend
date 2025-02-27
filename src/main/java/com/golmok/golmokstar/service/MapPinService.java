@@ -132,9 +132,9 @@ public class MapPinService {
         return distance <= 500;
     }
 
-    // ✅ 상세 MapPin 응답 생성 (buildDetailedMapPinResponse 추가)
     private MapPinResponseDto buildDetailedMapPinResponse(MapPin mapPin) {
-        int remainingDays = mapPin.getTrip() != null ? calculateRemainingDays(mapPin.getTrip().getStartDate()) : 0;
+        int remainingDays = (mapPin.getTrip() != null) ? calculateRemainingDays(mapPin.getTrip().getStartDate()) : 0;
+
         MapPinResponseDto.MapPinResponseDtoBuilder dtoBuilder = MapPinResponseDto.builder()
                 .pinId(mapPin.getPinId())
                 .googlePlaceId(mapPin.getGooglePlaceId())
@@ -144,22 +144,15 @@ public class MapPinService {
                 .longitude(mapPin.getLongitude())
                 .pinType(mapPin.getPinType())
                 .createdAt(mapPin.getCreatedAt())
-                .remainingDays(remainingDays);
+                .remainingDays(remainingDays)
+                .tripId(mapPin.getTrip() != null ? mapPin.getTrip().getTripId() : null)
+                .tripName(mapPin.getTrip() != null ? mapPin.getTrip().getTitle() : null)
+                .startDate(mapPin.getTrip() != null ? mapPin.getTrip().getStartDate() : null)
+                .endDate(mapPin.getTrip() != null ? mapPin.getTrip().getEndDate() : null);
 
-//        if (mapPin.getPinType() == PinType.RECORDED && mapPin.getTrip() != null) {
-//            dtoBuilder.tripName(mapPin.getTrip().getTitle())
-//                    .startDate(mapPin.getTrip().getStartDate())
-//                    .endDate(mapPin.getTrip().getEndDate());
-//
-//            Optional<Record> record = recordRepository.findByMapPin(mapPin);
-//            record.ifPresent(r -> dtoBuilder.rating(r.getRating()));
-//        }
-
-        if (mapPin.getTrip() != null) { // ✅ trip이 존재하는 경우 tripId 추가
-            dtoBuilder.tripId(mapPin.getTrip().getTripId())  // ✅ tripId 반환
-                    .tripName(mapPin.getTrip().getTitle())
-                    .startDate(mapPin.getTrip().getStartDate())
-                    .endDate(mapPin.getTrip().getEndDate());
+        // ✅ title이 null이면 추가하지 않음
+        if (mapPin.getTrip() != null && mapPin.getTrip().getTitle() != null) {
+            dtoBuilder.title(mapPin.getTrip().getTitle());
         }
 
         if (mapPin.getPinType() == PinType.RECORDED) {
@@ -169,6 +162,7 @@ public class MapPinService {
 
         return dtoBuilder.build();
     }
+
 
     private Long extractUserIdFromToken(String token) {
         return jwtUtil.extractUserId(token.replace("Bearer ", ""));
@@ -222,6 +216,8 @@ public class MapPinService {
                 .latitude(mapPin.getLatitude())
                 .longitude(mapPin.getLongitude())
                 .createdAt(mapPin.getCreatedAt())
+                .placeName(mapPin.getPlaceName())
+                .placeType(mapPin.getPlaceType() != null ? mapPin.getPlaceType() : PlaceType.UNKNOWN) // ✅ placeType 포함
                 .message(message)
                 .build();
 

@@ -21,21 +21,21 @@ public class FriendRequest {
     private Long requestId;
 
     @ManyToOne
-    @JoinColumn(name = "requesterId", referencedColumnName = "userId")
+    @JoinColumn(name = "requester_id", referencedColumnName = "userId")
     private User requester;
 
     @ManyToOne
-    @JoinColumn(name = "receiverId", referencedColumnName = "userId")
+    @JoinColumn(name = "receiver_id", referencedColumnName = "userId")
     private User receiver;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "requestStatus", nullable = false, columnDefinition = "DATE")
-    private RequestStatus requestStatus = RequestStatus.PENDING;
+    @Enumerated
+    @Column(name = "request_status")
+    public RequestStatus requestStatus = RequestStatus.PENDING;
 
-    @Column(name = "requestDate", nullable = false, columnDefinition = "DATE")
+    @Column(name = "request_date", nullable = false, columnDefinition = "DATE")
     private LocalDate requestDate;
 
-    @Column(name = "responseDate")
+    @Column(name = "response_date", nullable = true)
     private LocalDate responseDate;
 
     public FriendRequest(User requester, User receiver, LocalDate requestDate) {

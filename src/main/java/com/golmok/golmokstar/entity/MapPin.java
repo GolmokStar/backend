@@ -5,6 +5,7 @@ import com.golmok.golmokstar.enums.PlaceType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,7 +18,7 @@ public class MapPin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pinId;  // ✅ Integer → Long으로 변경
+    private Long pinId;
 
     @ManyToOne
     @JoinColumn(name = "trip_id", nullable = false)
@@ -28,24 +29,32 @@ public class MapPin {
     private User user;
 
     @Column(nullable = false)
-    private String googlePlaceId; // ✅ Place 엔티티 없이 직접 저장
+    private String googlePlaceId;
 
     @Column(nullable = false)
-    private String placeName; // ✅ Place 엔티티 없이 직접 저장
+    private String placeName;
 
     @Enumerated(EnumType.STRING)
-    private PlaceType placeType;        // ✅String -> PlaceType
+    private PlaceType placeType;
 
     @Column(nullable = false)
-    private double latitude;   // ✅ 위도 추가
+    private double latitude;
 
     @Column(nullable = false)
-    private double longitude; // ✅ 경도 추가
+    private double longitude;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PinType pinType;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
+
+    // ✅ createdAt이 null이면 자동으로 현재 날짜 설정
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDate.now();
+        }
+    }
 }

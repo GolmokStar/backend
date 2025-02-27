@@ -35,7 +35,8 @@ public class MapPin {
     private String placeName;
 
     @Enumerated(EnumType.STRING)
-    private PlaceType placeType = PlaceType.UNKNOWN; // ✅ 기본값 설정
+    @Column(nullable = false)
+    private PlaceType placeType;
 
     @Column(nullable = false)
     private double latitude;
@@ -56,5 +57,14 @@ public class MapPin {
         if (this.createdAt == null) {
             this.createdAt = LocalDate.now();
         }
+    }
+
+    // ✅ Getter 추가 (NULL 값이면 UNKNOWN 반환)
+    public PlaceType getPlaceType() {
+        return placeType != null ? placeType : PlaceType.UNKNOWN;
+    }
+
+    public void setPlaceType(String placeType) {
+        this.placeType = PlaceType.fromString(placeType);
     }
 }

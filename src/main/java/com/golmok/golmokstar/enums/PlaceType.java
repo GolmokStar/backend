@@ -17,8 +17,11 @@ public enum PlaceType {
     ELECTRICIAN, LOCKSMITH, MOVING_COMPANY, PAINTER, PLUMBER, ROOFING_CONTRACTOR, STORAGE, LAUNDRY;
 
     public static PlaceType fromString(String value) {
+        if (value == null || value.isEmpty()) {
+            return UNKNOWN; // NULL 또는 빈 문자열이면 UNKNOWN 반환
+        }
         try {
-            return PlaceType.valueOf(value.toUpperCase()); // 대소문자 무시하고 변환
+            return PlaceType.valueOf(value.toUpperCase()); // 대소문자 구분 없이 변환
         } catch (IllegalArgumentException e) {
             return UNKNOWN; // 존재하지 않는 값이면 UNKNOWN 반환
         }

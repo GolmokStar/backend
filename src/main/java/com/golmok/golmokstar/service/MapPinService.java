@@ -82,7 +82,7 @@ public class MapPinService {
                 .build();
 
         mapPinRepository.save(mapPin);
-        return buildMapPinResponse(mapPin, "장소 방문하기 성공", 0);
+        return buildVisitResponse(mapPin, "장소 방문하기 성공");
     }
 
     // ✅ 장소 RECORDED 상태로 변경
@@ -139,7 +139,7 @@ public class MapPinService {
                 .pinId(mapPin.getPinId())
                 .googlePlaceId(mapPin.getGooglePlaceId())
                 .placeName(mapPin.getPlaceName())
-                .placeType(mapPin.getPlaceType())
+                .placeType(mapPin.getPlaceType() != null ? mapPin.getPlaceType() : PlaceType.UNKNOWN) // ✅ placeType 반환 추가
                 .latitude(mapPin.getLatitude())
                 .longitude(mapPin.getLongitude())
                 .pinType(mapPin.getPinType())
@@ -241,7 +241,7 @@ public class MapPinService {
                 .pinId(mapPin.getPinId())
                 .googlePlaceId(mapPin.getGooglePlaceId())
                 .placeName(mapPin.getPlaceName())
-                .placeType(mapPin.getPlaceType())
+                .placeType(mapPin.getPlaceType() != null ? mapPin.getPlaceType() : PlaceType.UNKNOWN) // ✅ placeType 포함
                 .latitude(mapPin.getLatitude())
                 .longitude(mapPin.getLongitude())
                 .createdAt(mapPin.getCreatedAt())

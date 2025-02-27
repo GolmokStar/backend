@@ -26,9 +26,25 @@ public class MapPin {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "place_id", nullable = false)
-    private Place place;
+    @Column(nullable = false)
+    private String googlePlaceId; // ✅ Place 엔티티 없이 직접 저장
+
+    @Column(nullable = false)
+    private String placeName; // ✅ Place 엔티티 없이 직접 저장
+
+    // ❌ Place 엔티티 참조하지 않아도 됨
+//    @ManyToOne
+//    @JoinColumn(name = "place_id", nullable = false)
+//    private Place place;
+
+    @Enumerated(EnumType.STRING)
+    private String placeType;
+
+    @Column(nullable = false)
+    private double latitude;   // ✅ 위도 추가
+
+    @Column(nullable = false)
+    private double longitude; // ✅ 경도 추가
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

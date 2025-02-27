@@ -26,7 +26,8 @@ public class RecordResponseDTO {
     public RecordResponseDTO(Record record) {
         this.recordId = record.getRecordId();
         this.pinId = record.getMapPin().getPinId();
-        this.placeName = record.getMapPin().getPlace().getPlaceName();
+        // ✅ Place 엔티티 없이 MapPin에서 직접 가져옴
+        this.placeName = record.getMapPin().getPlaceName();
         this.location = ""; //위치 정보 필요 시 추가
         this.rating = record.getRating();
         this.comment = record.getComment();
@@ -41,7 +42,8 @@ public class RecordResponseDTO {
     public RecordResponseDTO(MapPin pin) {
         this.recordId = null;  //기록이 없으므로 null
         this.pinId = pin.getPinId();
-        this.placeName = pin.getPlace().getPlaceName();
+        // ✅ Place 엔티티 없이 MapPin에서 직접 가져옴
+        this.placeName = pin.getPlaceName();
         this.location = ""; //위치 정보 필요 시 추가
         this.rating = null; //별점 없음
         this.comment = null; //코멘트 없음

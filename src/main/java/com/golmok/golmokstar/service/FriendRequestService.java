@@ -85,11 +85,14 @@ public class FriendRequestService {
         // 해당 friendRequest 의 status = ACCEPTED, 날자는 오늘로 설정하고 저장
         friendRequest.setRequestStatus(RequestStatus.ACCEPTED);
         friendRequest.setResponseDate(LocalDate.now());
-        friendRequestRepository.save(friendRequest);
 
-        // 요청을 수락했으므로 실제 친구 관계도 저장
-        Friend newFriend = new Friend(friendRequest.getRequester(), friendRequest.getReceiver(), LocalDate.now(), 0);
-        friendRepository.save(newFriend);
+        // 요청을 수락했으므로, 중복 검사 후 실제 친구 관계도 저장
+        if(!friendRepository.existsByCurrentUserAndFriendUser(friendRequest.getRequester(), friendRequest.getReceiver())) {
+            Friend newFriend = new Friend(friendRequest.getRequester(), friendRequest.getReceiver(), LocalDate.now(), 0);
+            friendRepository.save(newFriend);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 친구 관계가 존재합니다.");
+        }
 
         return new AcceptFriendRequestResponseDto(friendRequest.getRequestId(), friendRequest.getRequestStatus(), friendRequest.getResponseDate());
     }

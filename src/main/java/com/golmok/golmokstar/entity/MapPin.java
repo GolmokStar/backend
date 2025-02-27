@@ -49,4 +49,10 @@ public class MapPin {
 
     @Column(nullable = false)
     private LocalDate createdAt;
+
+    // ✅ `createdAt` 자동 설정
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDate.now();
+    }
 }

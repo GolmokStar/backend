@@ -75,7 +75,7 @@ public class MapPinService {
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .pinType(PinType.FAVORED)
-                .createdAt(LocalDate.now()) // 찜하기 성공한 시간을 반환
+//                .createdAt(LocalDate.now()) // 엔티티에서 자동 설정
                 .build();
 
         mapPinRepository.save(mapPin);
@@ -89,7 +89,7 @@ public class MapPinService {
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .remainingDays(remainingDays)
-                .createdAt(mapPin.getCreatedAt())
+                .createdAt(mapPin.getCreatedAt())   // ✅ LocalDate.now() 대신 엔티티 값 사용
                 .message("장소 찜 완료")
                 .build();
     }
@@ -133,7 +133,7 @@ public class MapPinService {
                 .googlePlaceId(mapPin.getGooglePlaceId())
                 .latitude(mapPin.getLatitude())
                 .longitude(mapPin.getLongitude())
-                .createdAt(LocalDate.now())     // 방문하기 성공 시간 반환
+                .createdAt(LocalDate.now())     // 엔티티에서 자동 설정
                 .build();
     }
 
@@ -183,7 +183,7 @@ public class MapPinService {
                     .placeName(mapPin.getPlaceName())
                     .latitude(mapPin.getLatitude())
                     .longitude(mapPin.getLongitude())
-                    .createdAt(LocalDate.now());
+                    .createdAt(mapPin.getCreatedAt()); // ✅ 엔티티 값 사용
 
             // record 상태일 경우 추가
             if(mapPin.getPinType() == PinType.RECORDED && mapPin.getTrip() != null) {
@@ -225,7 +225,7 @@ public class MapPinService {
                     .pinType(mapPin.getPinType())
                     .tripId(mapPin.getTrip().getTripId())
                     .tripName(mapPin.getTrip().getTitle())
-                    .createdAt(LocalDate.now());
+                    .createdAt(mapPin.getCreatedAt());      // ✅ 엔티티의 createdAt 사용
 
             // RECORDED 상태라면 기록(`Record`)에서 별점 가져오기
             if (mapPin.getPinType() == PinType.RECORDED) {

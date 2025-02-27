@@ -1,5 +1,6 @@
 package com.golmok.golmokstar.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.golmok.golmokstar.enums.PinType;
 import com.golmok.golmokstar.enums.PlaceType;
 import jakarta.persistence.GeneratedValue;
@@ -51,5 +52,8 @@ public class MapPinRequestDto {
     @NotNull(message = "pinType는 필수 값입니다.")
     private PinType pinType;
 
-    private LocalDate createdAt = LocalDate.now(); // 기본값 현재 시간
+    // ✅ createdAt 제거 : 프론트에서 요청 보내는 값이 아님
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+//    private LocalDate createdAt = LocalDate.now();
+
 }

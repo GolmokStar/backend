@@ -1,5 +1,6 @@
 package com.golmok.golmokstar.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.golmok.golmokstar.enums.PinType;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +18,12 @@ public class MapPinResponseDto {
     private double latitude;
     private double longitude;
     private Integer remainingDays;
+
     // ✅ LocalDateTime -> LocalDate 변경
+    // ✅ JSON 변환 시 "yyyy-MM-dd" 형식 유지
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate createdAt;
+
     private String message;
 
     // 조회하기 ) tripId별 조회
@@ -31,5 +36,4 @@ public class MapPinResponseDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private Integer rating;
-
 }

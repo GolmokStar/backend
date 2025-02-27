@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface MapPinRepository extends JpaRepository<MapPin, Long> {
-    
+
     Optional<MapPin> findByPinIdAndPinType(Long pinId, PinType pinType);
 
     List<MapPin> findByTrip_TripIdAndUser_UserId(Long tripId, Long userId); // ✅ 정상적으로 사용 가능

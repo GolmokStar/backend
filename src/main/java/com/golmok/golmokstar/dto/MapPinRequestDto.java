@@ -1,6 +1,7 @@
 package com.golmok.golmokstar.dto;
 
 import com.golmok.golmokstar.enums.PinType;
+import com.golmok.golmokstar.enums.PlaceType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,7 +34,7 @@ public class MapPinRequestDto {
     @NotNull(message = "placeName는 필수 값입니다.")
     private String placeName;
 
-    private String placeType;
+    private PlaceType placeType;
 
     @NotNull(message = "latitude는 필수 값입니다.")
     private Double latitude;
@@ -41,10 +42,10 @@ public class MapPinRequestDto {
     @NotNull(message = "longitude는 필수 값입니다.")
     private Double longitude;
 
-    @NotNull(message = "device latitude는 필수입니다.")
+    // @NotNull(message = "device latitude는 필수입니다.")
     private double deviceLatitude;
 
-    @NotNull(message = "device longitude는 필수입니다.")
+    // @NotNull(message = "device longitude는 필수입니다.")
     private double deviceLongitude;
 
     @NotNull(message = "pinType는 필수 값입니다.")

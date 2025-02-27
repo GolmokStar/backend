@@ -16,6 +16,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     List<Trip> findByUser_UserId(Long userId);
 
+    Optional<Trip> findByTripId(Long tripId);
+
     //현재 진행 중인 여행 조회 (startDate ≤ today ≤ endDate)
     Optional<Trip> findByUser_UserIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
             Long userId, LocalDate startDate, LocalDate endDate);

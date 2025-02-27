@@ -33,12 +33,6 @@ public class MapPin {
     @Column(nullable = false)
     private String placeName; // ✅ Place 엔티티 없이 직접 저장
 
-    // ❌ Place 엔티티 참조하지 않아도 됨
-//    @ManyToOne
-//    @JoinColumn(name = "place_id", nullable = false)
-//    private Place place;
-
-    // AI 파트에 넘기기 위해 사용
     @Enumerated(EnumType.STRING)
     private PlaceType placeType;        // ✅String -> PlaceType
 

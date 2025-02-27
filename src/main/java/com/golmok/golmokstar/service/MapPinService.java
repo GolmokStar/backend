@@ -71,7 +71,7 @@ public class MapPinService {
                 .user(user)
                 .googlePlaceId(mapPinRequestDto.getGooglePlaceId())     // ✅ place 엔티티 사용 X
                 .placeName(mapPinRequestDto.getPlaceName())     // ✅ place 엔티티 사용 X
-                .placeType(PlaceType.fromString(mapPinRequestDto.getPlaceType()))    // enum -> string 변환
+                .placeType(mapPinRequestDto.getPlaceType())    // enum -> string 변환
                 .latitude(mapPinRequestDto.getLatitude())
                 .longitude(mapPinRequestDto.getLongitude())
                 .pinType(PinType.FAVORED)

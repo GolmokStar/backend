@@ -80,30 +80,38 @@ public class RecordService {
         return new RecordResponseDTO(record);
     }
 
+
+
     /**
      * 특정 여행의 방문한 장소 조회
      */
-    public List<RecordResponseDTO> getTravelHistory(Long userId, Long travelId) {
-        List<MapPin> mapPins = mapPinRepository.findByTrip_TripIdAndUser_UserId(travelId, userId);
+    public List<RecordResponseDTO> getTravelHistory(Long userId, Long tripId) {
+        List<MapPin> mapPins = mapPinRepository.findByTrip_TripIdAndUser_UserId(tripId, userId);
 
         return mapPins.stream()
                 .map(pin -> recordRepository.findByMapPin(pin)
                         .map(RecordResponseDTO::new)
                         .orElseGet(() -> new RecordResponseDTO(pin)))
                 .sorted((r1, r2) -> {
-                    if (!r1.isRecorded() && r2.isRecorded()) return -1;
+                    if (!r1.isRecorded() && r2.isRecorded()) return -1; // ✅ 기록 안 된 항목이 상단
                     if (r1.isRecorded() && !r2.isRecorded()) return 1;
-                    return r2.getVisitDate().compareTo(r1.getVisitDate());
+                    if (r1.getVisitDate() == null) return -1; // ✅ visitDate가 null이면 상단
+                    if (r2.getVisitDate() == null) return 1;
+                    return r2.getVisitDate().compareTo(r1.getVisitDate()); // ✅ 최신순 정렬
                 })
                 .collect(Collectors.toList());
     }
+
+
+
+
+
 
     /**
      * 사용자의 최신 방문 기록 리스트 (최대 5개)
      */
     @Transactional
     public List<RecordResponseDTO> getRecentRecords(Long userId) {
-        //방문 + 기록이 있는 것만 가져옴
         return recordRepository.findByMapPin_User_UserIdOrderByVisitDateDesc(userId, PageRequest.of(0, 5))
                 .stream()
                 .map(RecordResponseDTO::new)
@@ -111,16 +119,18 @@ public class RecordService {
     }
 
 
+
+
+
+
     /**
      * 사용자의 전체 방문 기록을 최신순으로 정렬하여 반환 (기록 안 한 항목 상단 배치)
      */
     @Transactional
     public List<RecordResponseDTO> getAllRecords(Long userId) {
-        //사용자를 조회해서 `findByUser(User user)`로 핀 리스트 가져오기
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // ✅ 메서드명 수정 (findByUser -> findByUserId)
         List<MapPin> mapPins = mapPinRepository.findByUser_UserId(userId);
 
         return mapPins.stream()
@@ -135,6 +145,7 @@ public class RecordService {
                 .collect(Collectors.toList());
     }
 
+
     /**
      * 전체 여행 기록 조회 (모든 여행의 기록 가져오기)
      */
@@ -148,4 +159,5 @@ public class RecordService {
                         .orElseGet(() -> new RecordResponseDTO(pin)))
                 .collect(Collectors.toList());
     }
+
 }

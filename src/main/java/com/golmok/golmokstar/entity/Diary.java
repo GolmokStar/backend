@@ -19,10 +19,10 @@ public class Diary {
     private Long diaryId;
 
     @ManyToOne
-    @JoinColumn(name = "tripId", referencedColumnName = "tripId", nullable = false)
+    @JoinColumn(name = "trip_id", referencedColumnName = "tripId", nullable = false)
     private Trip trip;
 
-    @Column(nullable = false)
+    @Column(name = "diary_date", nullable = false, columnDefinition = "DATE")
     private LocalDate diaryDate;
 
     @Column(nullable = false, length = 200)
@@ -31,7 +31,7 @@ public class Diary {
     @Column(length = 255)
     private String photo;
 
-    @Column
+    @Column(name = "ai_draft")
     private String aiDraft;
 
     public Diary(Trip trip, LocalDate diaryDate, String content, String photo, String aiDraft) {
